@@ -1,14 +1,23 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+import { TRANSACTION_CATEGORIES } from '../categorization/rules'
 import { prisma } from '../db/client'
 
 const transactionQuerySchema = z.object({
   account_id: z.string().uuid().optional(),
+  // Optional ISO date range (inclusive). Added so the transactions UI can
+  // filter by period server-side instead of paging through everything.
+  from: z.string().datetime({ offset: true }).optional(),
+  to: z.string().datetime({ offset: true }).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
 })
 
 const summaryQuerySchema = z.object({
   account_id: z.string().uuid().optional(),
+})
+
+const categorizeSchema = z.object({
+  category: z.enum(TRANSACTION_CATEGORIES),
 })
 
 export async function registerTransactionRoutes(app: FastifyInstance) {
@@ -29,6 +38,14 @@ export async function registerTransactionRoutes(app: FastifyInstance) {
             userId,
             ...(query.account_id ? { id: query.account_id } : {}),
           },
+          ...(query.from || query.to
+            ? {
+                occurredAt: {
+                  ...(query.from ? { gte: new Date(query.from) } : {}),
+                  ...(query.to ? { lte: new Date(query.to) } : {}),
+                },
+              }
+            : {}),
         },
         orderBy: { occurredAt: 'desc' },
         take: query.limit,
@@ -55,6 +72,35 @@ export async function registerTransactionRoutes(app: FastifyInstance) {
           amountMinor: transaction.amountMinor.toString(),
         })),
       }
+    },
+  )
+
+  app.post(
+    '/api/v1/transactions/:id/categorize',
+    { preHandler: app.authenticateConsumer },
+    async (request) => {
+      const userId = request.user!.id
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params)
+      const body = categorizeSchema.parse(request.body)
+
+      // Ownership before mutation: the transaction must belong to an account
+      // the session user actually owns — never just "is authenticated".
+      const transaction = await prisma.transaction.findFirst({
+        where: { id, account: { userId } },
+        select: { id: true },
+      })
+
+      if (!transaction) {
+        throw Object.assign(new Error('transaction_not_found'), { statusCode: 404 })
+      }
+
+      const updated = await prisma.transaction.update({
+        where: { id: transaction.id },
+        data: { category: body.category },
+        select: { id: true, category: true },
+      })
+
+      return { transaction: updated }
     },
   )
 

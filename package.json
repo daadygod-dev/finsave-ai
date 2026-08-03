@@ -17,6 +17,7 @@
     "@fastify/swagger": "^9.4.0",
     "@fastify/swagger-ui": "^5.2.0",
     "@prisma/client": "^6.3.1",
+    "@supabase/supabase-js": "^2.112.0",
     "@vitejs/plugin-react": "^4.3.4",
     "decimal.js": "^10.5.0",
     "fastify": "^5.2.1",
@@ -24,6 +25,7 @@
     "papaparse": "^5.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.2",
     "recharts": "^2.15.0",
     "zod": "^3.24.1"
   },
@@ -40,5 +42,22 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.6",
     "vitest": "^2.1.8"
+  },
+  "description": "An AI-assisted financial coaching platform: spending tracking, savings goal\r management, MSME credit scoring, and insurance matching — built as a\r web-first MVP.",
+  "main": "postcss.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daadygod-dev/finsave-ai.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/daadygod-dev/finsave-ai/issues"
+  },
+  "homepage": "https://github.com/daadygod-dev/finsave-ai#readme",
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines": true,
+    "prisma": true,
+    "esbuild": true
   }
 }

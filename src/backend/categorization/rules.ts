@@ -10,14 +10,17 @@ export type CategorizedTransaction = TransactionForCategorization & {
   confidence: number
 }
 
-export type TransactionCategory =
-  | 'food'
-  | 'transport'
-  | 'mobile_money'
-  | 'utilities'
-  | 'rent'
-  | 'income'
-  | 'uncategorized'
+export const TRANSACTION_CATEGORIES = [
+  'food',
+  'transport',
+  'mobile_money',
+  'utilities',
+  'rent',
+  'income',
+  'uncategorized',
+] as const
+
+export type TransactionCategory = (typeof TRANSACTION_CATEGORIES)[number]
 
 const keywordRules: Array<{
   category: TransactionCategory
