@@ -1,0 +1,80 @@
+# FinSave AI — Codex CLI project configuration
+#
+# This file uses only documented Codex CLI config.toml keys. It is loaded
+# from .codex/config.toml at the project root and merges with (and is
+# overridden by) CLI flags, an active profile, and user/system config —
+# see https://developers.openai.com/codex/config-basic for precedence order.
+#
+# Project-scoped config only applies when this repository is marked as
+# trusted. Until you've reviewed this file and trusted the project, Codex
+# will ignore it and fall back to your user/system config.
+
+# ── Model defaults ────────────────────────────────────────────────────────
+# The model name below is illustrative, not verified against current
+# OpenAI documentation as of writing. Run `codex` then `/status` after
+# install to see the actual default/available models, and set this to a
+# real current model ID rather than trusting this file.
+#
+# model_provider is intentionally NOT set here. As of Codex 0.129.0,
+# model_provider and model_providers are ignored at project scope by
+# design (see openai/codex PR #20098) — a checked-out repo should not be
+# able to silently redirect your API calls to a different provider or
+# gateway. If you need a non-default provider, set model_provider (and any
+# [model_providers.*] block) in your USER-level config at
+# ~/.codex/config.toml (or %USERPROFILE%\.codex\config.toml on Windows),
+# not here. Codex will print a warning and ignore this key if it's added
+# to this file — that warning is expected behavior, not a bug to fix.
+model_reasoning_effort = "medium"   # minimal | low | medium | high | xhigh
+
+# ── Approval & sandbox defaults ─────────────────────────────────────────────
+# approval_policy controls WHEN Codex must ask before acting.
+# sandbox_mode controls WHAT Codex is technically allowed to touch.
+# Given this project handles financial data (see AGENTS.md), default to a
+# conservative posture rather than the CLI's most permissive options.
+approval_policy = "on-request"      # untrusted | on-request | never
+sandbox_mode = "workspace-write"    # read-only | workspace-write | danger-full-access
+
+[sandbox_workspace_write]
+network_access = false
+# Restrict writes to the project directory only. Add other roots here only
+# if a specific workflow genuinely needs them.
+writable_roots = ["."]
+
+# ── Project root & instruction file discovery ───────────────────────────────
+# Default marker is a .git directory; explicit here for clarity.
+project_root_markers = [".git"]
+
+# AGENTS.md is read automatically. This fallback list is only consulted if
+# AGENTS.md is absent, which should not happen in this repo — kept here so
+# the intent is documented rather than silently relying on defaults.
+project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
+
+# ── MCP servers ──────────────────────────────────────────────────────────
+# Add MCP servers here as they're actually wired into the project. Left
+# empty for now — do not add a server definition until it has been tested,
+# since an entry here means Codex will attempt to connect to it.
+# Example (commented out until real):
+# [mcp_servers.supabase]
+# command = "npx"
+# args = ["-y", "@supabase/mcp-server"]
+# env = { SUPABASE_URL = "", SUPABASE_SERVICE_ROLE_KEY = "" }
+
+# ── Command-level execution policy ─────────────────────────────────────────
+# Fine-grained per-command allow/prompt/forbid rules live in
+# .codex/rules/project.rules (Starlark format, Codex's real execpolicy
+# mechanism — not a config.toml key). Verify any change to that file with:
+#   codex execpolicy check --pretty --rules .codex/rules/project.rules -- <command>
+# before trusting it.
+
+# ── Notes for anyone editing this file ──────────────────────────────────────
+# - Use `codex` then `/status` in an interactive session to see the actual
+#   effective configuration Codex is running with — don't assume this file
+#   is being read correctly without checking.
+# - Use `/permissions` in-session to change approval/sandbox behavior for a
+#   single session without editing this file.
+# - Never set approval_policy = "never" with sandbox_mode = "danger-full-access"
+#   on a real workstation — that combination is only defensible inside a
+#   disposable, isolated container with no real credentials on it.
+# - This file must not contain secrets. All real credentials (Plaid,
+#   Supabase, Groq) belong in a local .env file, which is gitignored — see
+#   README.md for the list of required environment variables.

@@ -1,0 +1,165 @@
+# FinSave AI — Codex CLI execution policy rules
+#
+# This file uses Codex's real execpolicy format: Starlark, loaded from
+# .codex/rules/ at the project root (trusted projects only). It controls
+# which commands Codex may run WITHOUT prompting you first, when running
+# outside the sandbox. This is a companion to approval_policy / sandbox_mode
+# in .codex/config.toml, not a replacement for them.
+#
+# Verify any rule before trusting it:
+#   codex execpolicy check --pretty --rules .codex/rules/project.rules -- <command>
+#
+# Reference: https://developers.openai.com/codex/rules
+# Reference: https://github.com/openai/codex/blob/main/codex-rs/execpolicy/README.md
+#
+# decision values: "allow" (default if omitted), "prompt", "forbidden"
+# Rules are prefix-matched on tokens; a list entry in `pattern` means
+# "any of these alternatives at this position."
+
+# ── Safe, expected day-to-day commands ─────────────────────────────────────
+
+prefix_rule(
+    pattern = ["npm", "install"],
+    decision = "allow",
+    justification = "Routine dependency installation",
+    match = ["npm install", "npm install papaparse", "npm install @fastify/rate-limit"],
+)
+
+prefix_rule(
+    pattern = ["npm", "run"],
+    decision = "allow",
+    justification = "Routine script execution (dev, build, lint, etc.)",
+    match = ["npm run dev", "npm run build"],
+)
+
+prefix_rule(
+    pattern = ["npx", "vitest"],
+    decision = "allow",
+    justification = "Running the test suite is always safe to do without asking",
+    match = ["npx vitest run", "npx vitest --coverage"],
+)
+
+prefix_rule(
+    pattern = ["npx", "tsc"],
+    decision = "allow",
+    justification = "Type-checking is read-only",
+    match = ["npx tsc --noEmit"],
+)
+
+prefix_rule(
+    pattern = ["git", ["status", "diff", "log"]],
+    decision = "allow",
+    justification = "Read-only git inspection commands",
+    match = ["git status", "git diff", "git log"],
+)
+
+prefix_rule(
+    pattern = ["git", "add"],
+    decision = "allow",
+    justification = "Staging changes is reversible and low-risk",
+    match = ["git add ."],
+)
+
+# ── Prisma: schema changes are sensitive, migrations are more sensitive ────
+# See AGENTS.md — prisma/schema.prisma and prisma/migrations/** require
+# human review regardless of what this file allows for execution.
+
+prefix_rule(
+    pattern = ["npx", "prisma", "generate"],
+    decision = "allow",
+    justification = "Regenerating the Prisma client from an existing schema is safe",
+)
+
+prefix_rule(
+    pattern = ["npx", "prisma", "migrate", "dev"],
+    decision = "prompt",
+    justification = "Creates and applies a local migration — confirm the schema change is intended before it runs",
+)
+
+prefix_rule(
+    pattern = ["npx", "prisma", "migrate", "deploy"],
+    decision = "forbidden",
+    justification = "Production migration. Run this manually, outside of Codex, after human review of the migration file.",
+)
+
+prefix_rule(
+    pattern = ["npx", "prisma", "db", "push"],
+    decision = "prompt",
+    justification = "Can silently alter or drop columns without a migration file — confirm before running",
+)
+
+# ── Git history / remote — never silently rewrite or force ────────────────
+
+prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "prompt",
+    justification = "Confirm the commit message and staged changes before committing",
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Confirm before pushing to a remote",
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f"]],
+    decision = "forbidden",
+    justification = "Force-pushing can destroy history other people depend on. Use a normal push and resolve conflicts instead.",
+)
+
+# ── Deployment — always a human decision, never automatic ─────────────────
+
+prefix_rule(
+    pattern = ["gcloud", "run", "deploy"],
+    decision = "prompt",
+    justification = "Deploying to Cloud Run should be a deliberate, confirmed action",
+)
+
+prefix_rule(
+    pattern = ["gcloud", "run", "services", "update"],
+    decision = "prompt",
+    justification = "Changing a live service's configuration should be confirmed",
+)
+
+prefix_rule(
+    pattern = ["vercel", "--prod"],
+    decision = "prompt",
+    justification = "Production frontend deploy should be confirmed, not automatic",
+)
+
+# ── Supabase — schema and secrets changes are sensitive ────────────────────
+
+prefix_rule(
+    pattern = ["supabase", "db", "push"],
+    decision = "prompt",
+    justification = "Pushes local schema changes to the linked Supabase project",
+)
+
+prefix_rule(
+    pattern = ["supabase", "secrets", "set"],
+    decision = "forbidden",
+    justification = "Secrets belong in a local .env file managed by a human, not set by an agent through the CLI",
+)
+
+# ── Destructive commands — hard stop, no exceptions ────────────────────────
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "prompt",
+    justification = "Recursive force-delete needs a human to confirm the target path is correct",
+    match = ["rm -rf node_modules"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf", "/"],
+    decision = "forbidden",
+    justification = "Never allowed under any circumstance",
+)
+
+# Piping a remote script straight into a shell is a common supply-chain risk.
+prefix_rule(
+    pattern = ["curl"],
+    decision = "prompt",
+    justification = "Review any curl command before it runs, especially anything piped into sh/bash",
+)

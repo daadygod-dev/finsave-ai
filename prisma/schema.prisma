@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  individual
+  msme_owner
+}
+
+enum AccountSource {
+  plaid_bank
+  bank_csv
+  momo_csv
+}
+
+enum TransactionCategory {
+  food
+  transport
+  mobile_money
+  utilities
+  rent
+  income
+  uncategorized
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts      Account[]
+  savingsGoals  SavingsGoal[]
+  creditScores  CreditScore[]
+  consentGrants ConsentGrant[]
+}
+
+model Account {
+  id                    String        @id @default(uuid())
+  userId                String
+  source                AccountSource
+  institution           String
+  plaidItemId           String?
+  plaidAccountId        String?
+  accessTokenCiphertext String?
+  lastSyncedAt          DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([source])
+}
+
+model Transaction {
+  id             String              @id @default(uuid())
+  accountId      String
+  externalId     String?
+  merchantName   String
+  amountMinor    BigInt
+  currency       String              @default("RWF")
+  category       TransactionCategory @default(uncategorized)
+  occurredAt     DateTime
+  rawDescription String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, externalId])
+  @@index([accountId, occurredAt])
+}
+
+model SavingsGoal {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  targetMinor BigInt
+  savedMinor  BigInt   @default(0)
+  currency    String   @default("RWF")
+  targetDate  DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CreditScore {
+  id          String   @id @default(uuid())
+  businessId  String
+  score       Int
+  factorsJson Json
+  computedAt  DateTime @default(now())
+
+  business User @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, computedAt])
+}
+
+model LenderStaff {
+  id           String   @id @default(uuid())
+  lenderName   String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  consentGrants ConsentGrant[]
+}
+
+model ConsentGrant {
+  id         String    @id @default(uuid())
+  businessId String
+  lenderId   String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  business User        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  lender   LenderStaff @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, lenderId])
+}
