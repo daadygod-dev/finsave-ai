@@ -52,7 +52,7 @@ export function Topbar({ onMenu }: TopbarProps) {
   }, [])
 
   return (
-    <header className="sticky top-0 z-30 bg-white">
+    <header className="sticky top-0 z-30 border-b border-[#d7e6f3] bg-white">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
         {/* Mobile menu */}
         <button
@@ -137,7 +137,7 @@ export function Topbar({ onMenu }: TopbarProps) {
               aria-expanded={profileOpen}
               aria-label="Account menu"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,#6d5df6,#8e5cff)] text-xs font-semibold text-white">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white">
                 {initials(displayName(user))}
               </span>
               <span className="hidden min-w-0 text-left md:block">

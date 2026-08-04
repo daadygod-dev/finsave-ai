@@ -7,7 +7,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
     <main className="flex min-h-screen items-center justify-center bg-white px-4 py-12 text-ink">
       <div className="w-full max-w-md animate-fade-up">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#6d5df6,#8e5cff)] text-white shadow-[0_6px_18px_-6px_rgba(109,93,246,0.5)]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand text-white shadow-[0_6px_18px_-6px_rgba(70,92,122,0.45)]">
             <Sprout size={24} aria-hidden="true" />
           </span>
           <div>

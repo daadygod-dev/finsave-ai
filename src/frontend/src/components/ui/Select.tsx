@@ -9,7 +9,7 @@ export function Select({ className, children, ...props }: SelectProps) {
     <span className="relative block">
       <select
         className={cx(
-          'w-full appearance-none rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 pr-9 text-sm text-ink outline-none transition-colors duration-200 focus:border-lake focus:ring-2 focus:ring-lake/30',
+          'h-11 w-full appearance-none rounded-xl border border-ink/15 bg-white px-3.5 pr-10 text-sm text-ink shadow-[inset_0_1px_1px_rgba(15,18,21,0.02)] outline-none transition-[border-color,box-shadow] duration-200 focus:border-brand/50 focus:ring-2 focus:ring-brand/25',
           className,
         )}
         {...props}

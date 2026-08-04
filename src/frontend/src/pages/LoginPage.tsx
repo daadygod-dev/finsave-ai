@@ -113,7 +113,7 @@ export function LoginPage() {
               </p>
             )}
 
-            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+            <Button type="submit" size="lg" className="w-full" loading={submitting}>
               {submitting ? 'Signing in…' : 'Sign in'}
             </Button>
 

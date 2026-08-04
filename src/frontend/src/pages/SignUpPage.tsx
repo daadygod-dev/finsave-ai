@@ -200,7 +200,7 @@ export function SignUpPage() {
               </p>
             )}
 
-            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+            <Button type="submit" size="lg" className="w-full" loading={submitting}>
               {submitting ? 'Creating account…' : 'Create account'}
             </Button>
 

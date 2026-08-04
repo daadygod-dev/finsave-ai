@@ -5,6 +5,8 @@ import type { Account, Summary, Transaction, TransactionCategory } from '../api/
 import { Badge } from '../components/ui/Badge'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
+import { DatePicker } from '../components/ui/DatePicker'
+import { FilterSelect } from '../components/ui/FilterSelect'
 import { PageHeader } from '../components/ui/PageHeader'
 import { Skeleton } from '../components/ui/Skeleton'
 import { useAsync } from '../hooks/useAsync'
@@ -99,66 +101,28 @@ export function TransactionsPage() {
               />
             </label>
 
-            <select
-              value={accountId ?? ''}
-              onChange={(event) => {
-                setAccountId(event.target.value || undefined)
+            <FilterSelect
+              value={accountId ?? '__all__'}
+              onValueChange={(value) => {
+                setAccountId(value === '__all__' ? undefined : value)
                 setPage(1)
               }}
-              className="rounded-full border border-ink/15 bg-white px-3.5 py-2 text-sm outline-none transition-colors duration-200 focus:border-lake focus:ring-2 focus:ring-lake/30"
-              aria-label="Filter by account"
-            >
-              <option value="">All accounts</option>
-              {(accounts.data?.accounts ?? []).map((account: Account) => (
-                <option key={account.id} value={account.id}>
-                  {account.institution}
-                </option>
-              ))}
-            </select>
+              label="Filter by account"
+              options={[{ value: '__all__', label: 'All accounts' }, ...(accounts.data?.accounts ?? []).map((account: Account) => ({ value: account.id, label: account.institution }))]}
+            />
 
-            <select
+            <FilterSelect
               value={category}
-              onChange={(event) => {
-                setCategory(event.target.value as TransactionCategory | 'all')
+              onValueChange={(value) => {
+                setCategory(value as TransactionCategory | 'all')
                 setPage(1)
               }}
-              className="rounded-full border border-ink/15 bg-white px-3.5 py-2 text-sm outline-none transition-colors duration-200 focus:border-lake focus:ring-2 focus:ring-lake/30"
-              aria-label="Filter by category"
-            >
-              <option value="all">All categories</option>
-              {TRANSACTION_CATEGORIES.map((item) => (
-                <option key={item} value={item}>
-                  {CATEGORY_META[item].label}
-                </option>
-              ))}
-            </select>
+              label="Filter by category"
+              options={[{ value: 'all', label: 'All categories' }, ...TRANSACTION_CATEGORIES.map((item) => ({ value: item, label: CATEGORY_META[item].label }))]}
+            />
 
-            <label className="flex items-center gap-1.5 text-xs text-ink/55">
-              <span>From</span>
-              <input
-                type="date"
-                value={from}
-                onChange={(event) => {
-                  setFrom(event.target.value)
-                  setPage(1)
-                }}
-                className="rounded-full border border-ink/15 bg-white px-3 py-1.5 text-sm outline-none transition-colors duration-200 focus:border-lake focus:ring-2 focus:ring-lake/30"
-                aria-label="From date"
-              />
-            </label>
-            <label className="flex items-center gap-1.5 text-xs text-ink/55">
-              <span>To</span>
-              <input
-                type="date"
-                value={to}
-                onChange={(event) => {
-                  setTo(event.target.value)
-                  setPage(1)
-                }}
-                className="rounded-full border border-ink/15 bg-white px-3 py-1.5 text-sm outline-none transition-colors duration-200 focus:border-lake focus:ring-2 focus:ring-lake/30"
-                aria-label="To date"
-              />
-            </label>
+            <DatePicker value={from} onChange={(value) => { setFrom(value); setPage(1) }} label="From date" />
+            <DatePicker value={to} onChange={(value) => { setTo(value); setPage(1) }} label="To date" />
           </div>
         }
       />

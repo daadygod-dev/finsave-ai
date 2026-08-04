@@ -83,7 +83,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
   return (
     <div
       className={cx(
-        'flex h-full flex-col overflow-hidden border border-white/[0.08] bg-[#0f172a]',
+        'flex h-full flex-col overflow-hidden border-r border-[#2c363f] bg-[#1e242a]',
         'transition-[width] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]',
         collapsed ? 'w-[76px]' : 'w-[264px]',
         className,
@@ -96,7 +96,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
           collapsed ? 'justify-center' : 'gap-2.5 px-5',
         )}
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#6d5df6,#8e5cff)] text-white">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
           <Sprout size={18} aria-hidden="true" />
         </span>
         <div
@@ -111,7 +111,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
       </div>
 
       {/* Divider between branding and navigation */}
-      <div className="mx-5 shrink-0 border-t border-white/[0.08]" />
+      <div className="mx-5 shrink-0 border-t border-[#3b4754]" />
 
       {/* Navigation — the only scrollable region */}
       <nav
@@ -140,8 +140,8 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
                         'group relative flex items-center rounded-xl py-3 text-sm font-medium outline-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]',
                         collapsed ? 'justify-center' : 'pl-4 pr-3',
                         isActive
-                          ? 'bg-gradient-to-r from-[#5c4bff] to-[#7448ff] font-semibold text-white shadow-[0_8px_24px_-10px_rgba(109,93,246,0.6)]'
-                          : 'text-white hover:-translate-y-px hover:bg-white/[0.08] hover:text-white',
+                          ? 'bg-brand-deep font-semibold text-white shadow-[0_8px_20px_-12px_rgba(70,92,122,0.72)]'
+                          : 'text-slate-200 hover:-translate-y-px hover:bg-[#3b4754] hover:text-white',
                       )
                     }
                   >
@@ -151,7 +151,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
                         <span
                           aria-hidden="true"
                           className={cx(
-                            'absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-white transition-opacity duration-200',
+                            'absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#bdd5ea] transition-opacity duration-200',
                             isActive ? 'opacity-100' : 'opacity-0',
                           )}
                         />
@@ -186,11 +186,11 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
       </nav>
 
       {/* Session footer — stays fixed while navigation scrolls */}
-      <div className="shrink-0 border-t border-white/[0.08] p-3">
+      <div className="shrink-0 border-t border-[#3b4754] p-3">
         {/* Bottom user card — separate solid darker surface, fully opaque */}
         <div
           className={cx(
-            'rounded-xl border border-white/[0.06] bg-[#0b1220]',
+            'rounded-xl border border-[#3b4754] bg-[#11171e]',
             collapsed ? 'p-1.5' : 'p-2',
           )}
         >
@@ -200,11 +200,11 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
             title={collapsed ? 'Settings' : undefined}
             aria-label={collapsed ? 'Settings' : undefined}
             className={cx(
-              'flex min-w-0 flex-1 items-center rounded-2xl p-2 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-brand',
+              'flex min-w-0 flex-1 items-center rounded-2xl p-2 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#34455b] focus-visible:ring-2 focus-visible:ring-brand',
               collapsed && 'flex-col',
             )}
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#6d5df6,#8e5cff)] text-xs font-semibold text-white">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white">
               {initialsOf(name)}
             </span>
             <span
@@ -220,7 +220,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
 
           <button
             onClick={() => void signOut()}
-            className="shrink-0 rounded-full p-2 text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.08] hover:text-[#f87171] focus-visible:ring-2 focus-visible:ring-brand"
+            className="shrink-0 rounded-full p-2 text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#3b4754] hover:text-brick focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Sign out"
             title="Sign out"
           >
@@ -233,7 +233,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
           <button
             onClick={onToggleCollapse}
             className={cx(
-              'mt-2 flex w-full items-center rounded-xl border border-white/[0.12] bg-transparent py-2 text-xs font-medium text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-brand',
+              'mt-2 flex w-full items-center rounded-xl border border-[#3b4754] bg-[#1e242a] py-2 text-xs font-medium text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#3b4754] hover:text-white focus-visible:ring-2 focus-visible:ring-brand',
               collapsed ? 'justify-center' : 'px-3',
             )}
             aria-expanded={!collapsed}

@@ -393,7 +393,7 @@ function CreateGoalModal(props: {
           <Button variant="ghost" type="button" onClick={props.onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" loading={submitting}>
             {submitting ? 'Creating…' : 'Create goal'}
           </Button>
         </div>
@@ -481,7 +481,7 @@ function EditGoalModal(props: { goal: SavingsGoal; onClose: () => void; onSaved:
           <Button variant="ghost" type="button" onClick={props.onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" loading={submitting}>
             {submitting ? 'Saving…' : 'Save changes'}
           </Button>
         </div>
@@ -548,7 +548,7 @@ function AddSavingsModal(props: { goal: SavingsGoal; onClose: () => void; onSave
           <Button variant="ghost" type="button" onClick={props.onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" loading={submitting}>
             {submitting ? 'Recording…' : 'Record savings'}
           </Button>
         </div>

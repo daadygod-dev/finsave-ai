@@ -188,7 +188,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
               your transactions. The connection is encrypted and stored securely.
             </p>
             <div className="mx-auto mt-1">
-              <Button onClick={connectBank} disabled={connecting} size="lg">
+              <Button onClick={connectBank} loading={connecting} size="lg">
                 {connecting ? 'Connecting…' : 'Connect a bank'}
               </Button>
             </div>
@@ -267,7 +267,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
               />
             </div>
 
-            <Button onClick={submitCsv} disabled={submitting} size="lg">
+            <Button onClick={submitCsv} loading={submitting} size="lg">
               {submitting ? 'Importing…' : 'Import statement'}
             </Button>
           </div>

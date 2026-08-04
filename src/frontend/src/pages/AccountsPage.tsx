@@ -276,7 +276,7 @@ export function AccountsPage() {
                           variant="secondary"
                           size="sm"
                           onClick={() => sync(account)}
-                          disabled={syncing}
+                          loading={syncing}
                         >
                           <RefreshCw
                             size={14}

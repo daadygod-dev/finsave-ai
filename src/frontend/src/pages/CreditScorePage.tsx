@@ -469,7 +469,7 @@ function ComputeCard({ onComputed }: { onComputed: (result: CreditScoreResult) =
           )}
 
           <div className="sm:col-span-3">
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" loading={submitting}>
               {submitting ? 'Computing…' : 'Compute score'}
             </Button>
           </div>

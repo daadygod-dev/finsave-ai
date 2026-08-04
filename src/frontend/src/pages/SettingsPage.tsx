@@ -211,7 +211,7 @@ export function SettingsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => syncAccount(account)}
-                            disabled={syncing}
+                            loading={syncing}
                             aria-label={`Sync ${account.institution}`}
                           >
                             <RefreshCw size={14} aria-hidden="true" className={syncing ? 'animate-spin' : ''} />
@@ -287,7 +287,7 @@ function ProfileNameForm({ onSaved }: { onSaved: (name: string) => void }) {
         </p>
       )}
       <div>
-        <Button type="submit" size="sm" disabled={saving}>
+        <Button type="submit" size="sm" loading={saving}>
           {saving ? 'Saving…' : 'Save name'}
         </Button>
       </div>
@@ -384,7 +384,7 @@ function ChangePasswordForm() {
       )}
 
       <div className="sm:col-span-3">
-        <Button type="submit" size="sm" disabled={saving}>
+        <Button type="submit" size="sm" loading={saving}>
           {saving ? 'Changing…' : 'Change password'}
         </Button>
       </div>

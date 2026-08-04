@@ -5,22 +5,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#0f172a',
-        ledger: '#f4f5f7',
-        palm: '#1f6f4a',
-        maize: '#e0b44c',
-        lake: '#2f6f8f',
-        brick: '#9f4f3f',
-        // Dark sidebar surface + brand purple (premium reference theme)
+        ink: '#0f1215',
+        ledger: '#f2f7fb',
+        palm: '#237a57',
+        maize: '#c88520',
+        lake: '#577399',
+        brick: '#fe5f55',
+        // Blue-slate navigation and glaucous actions.
         night: {
-          700: '#151a28',
-          800: '#101624',
-          900: '#0c111c',
+          700: '#2c363f',
+          800: '#1e242a',
+          900: '#0f1215',
         },
         brand: {
-          DEFAULT: '#6d5df6',
-          bright: '#8e5cff',
-          deep: '#5c4bff',
+          DEFAULT: '#577399',
+          bright: '#768eb0',
+          deep: '#465c7a',
         },
       },
       fontFamily: {

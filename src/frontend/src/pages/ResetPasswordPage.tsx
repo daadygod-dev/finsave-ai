@@ -173,7 +173,7 @@ export function ResetPasswordPage() {
                 </p>
               )}
 
-              <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+              <Button type="submit" size="lg" className="w-full" loading={submitting}>
                 {submitting ? 'Updating…' : 'Update password'}
               </Button>
             </div>

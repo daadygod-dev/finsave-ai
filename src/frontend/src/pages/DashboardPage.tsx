@@ -3,6 +3,9 @@ import {
   ArrowUpRight,
   Banknote,
   Bell,
+  CircleDollarSign,
+  CircleGauge,
+  Download,
   Landmark,
   Plus,
   RefreshCw,
@@ -10,9 +13,12 @@ import {
   Smartphone,
 } from 'lucide-react'
 import {
-  Bar,
-  BarChart,
+  Cell,
   CartesianGrid,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -226,11 +232,11 @@ export function DashboardPage() {
             </Button>
             <Button
               onClick={() => setConnectOpen(true)}
-              className="group"
+              className="group min-w-[164px]"
             >
               <Plus size={16} aria-hidden="true" />
               Connect account
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#bdd5ea] text-[#1e242a] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
                 <ArrowUpRight size={15} aria-hidden="true" />
               </span>
             </Button>
@@ -250,37 +256,30 @@ export function DashboardPage() {
           </Card>
         ) : data ? (
           <>
-            <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-              <div className="flex flex-col gap-6">
-                <ScoreCard
-                  credit={credit.data}
-                  loading={credit.loading}
-                  noScoreYet={noScoreYet}
-                  accountsCount={data.accounts.length}
-                  computing={computingScore}
-                  onCompute={computeScore}
-                />
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <SpendingChartCard summary={data.summary} />
-                  <AlertsCard alerts={alerts} />
-                </div>
-                <CoachCard title="Your AI coach" />
-              </div>
-
-              <aside className="flex flex-col gap-6">
-                <AccountsCard
-                  accounts={data.accounts}
-                  balances={balances}
-                  activeAccountId={activeAccountId}
-                  onSelectAccount={selectAccount}
-                  onConnect={() => setConnectOpen(true)}
-                />
-                <TransactionsCard
-                  transactions={data.transactions}
-                  activeAccountId={activeAccountId}
-                />
-              </aside>
+            <KpiGrid summary={data.summary} credit={credit.data} loading={credit.loading} />
+            <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr_0.95fr]">
+              <SpendingChartCard summary={data.summary} />
+              <CashFlowCard summary={data.summary} />
+              <TransactionsCard transactions={data.transactions} activeAccountId={activeAccountId} />
             </div>
+            <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+              <AccountsCard
+                accounts={data.accounts}
+                balances={balances}
+                activeAccountId={activeAccountId}
+                onSelectAccount={selectAccount}
+                onConnect={() => setConnectOpen(true)}
+              />
+              <ScoreCard
+                credit={credit.data}
+                loading={credit.loading}
+                noScoreYet={noScoreYet}
+                accountsCount={data.accounts.length}
+                computing={computingScore}
+                onCompute={computeScore}
+              />
+            </div>
+            <div className="grid gap-6 lg:grid-cols-2"><AlertsCard alerts={alerts} /><CoachCard title="Your AI coach" /></div>
           </>
         ) : null}
       </div>
@@ -300,6 +299,33 @@ export function DashboardPage() {
 /* ------------------------------------------------------------------ */
 /* Cards                                                               */
 /* ------------------------------------------------------------------ */
+
+function KpiGrid(props: { summary: Summary; credit: CreditScoreResult | null; loading: boolean }) {
+  const income = props.summary.byAccount.reduce((total, item) => total + BigInt(item.incomeMinor), 0n)
+  const spending = props.summary.byAccount.reduce((total, item) => total + BigInt(item.spendingMinor), 0n)
+  const balance = income - spending
+  const savingsRate = income > 0n ? Math.max(0, Math.round((Number(balance) / Number(income)) * 100)) : 0
+  const cards = [
+    { label: 'Net cash flow', value: formatRwf(balance), icon: CircleDollarSign, tone: 'text-lake', note: 'Across linked accounts' },
+    { label: 'Income', value: formatRwf(income), icon: Download, tone: 'text-palm', note: 'This reporting period' },
+    { label: 'Expenses', value: formatRwf(spending), icon: Banknote, tone: 'text-brick', note: 'This reporting period' },
+    { label: 'Savings rate', value: `${savingsRate}%`, icon: CircleGauge, tone: 'text-lake', note: props.loading ? 'Checking score…' : props.credit ? `Credit score ${props.credit.score}/100` : 'Build a score from activity' },
+  ]
+
+  return (
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Financial overview">
+      {cards.map((card, index) => {
+        const Icon = card.icon
+        return <div key={card.label} className="card-shell animate-fade-up" style={{ animationDelay: `${index * 45}ms` }}><div className="card-inner p-5"><div className="flex items-start justify-between gap-3"><p className="text-sm font-medium text-ink/65">{card.label}</p><span className={`flex h-9 w-9 items-center justify-center rounded-xl bg-ledger ${card.tone}`}><Icon size={19} aria-hidden="true" /></span></div><p className="mt-4 truncate text-2xl font-semibold tracking-tight text-ink tabular">{card.value}</p><p className="mt-1 text-xs text-ink/50">{card.note}</p></div></div>
+      })}
+    </section>
+  )
+}
+
+function CashFlowCard({ summary }: { summary: Summary }) {
+  const data = summary.byMonth.map((item) => ({ month: item.month, amount: Number(item.amountMinor) }))
+  return <section className="card-shell animate-fade-up"><div className="card-inner h-full p-6"><div className="mb-5 flex items-center gap-2"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-lake/10 text-lake"><CircleDollarSign size={18} aria-hidden="true" /></span><div><h2 className="text-lg font-semibold">Cash flow</h2><p className="text-xs text-ink/50">Monthly recorded activity</p></div></div>{data.length === 0 ? <EmptyState title="No cash flow yet" body="Connect an account or import a statement to see activity over time." /> : <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{ top: 8, right: 4, left: -12, bottom: 0 }}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(87,115,153,0.13)" /><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#667a8f' }} /><YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#667a8f' }} tickFormatter={compactRwf} /><Tooltip formatter={(value) => formatRwf(String(value))} contentStyle={{ borderRadius: 14, border: '1px solid #d7e6f3', fontSize: 12 }} /><Line type="monotone" dataKey="amount" stroke="#577399" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#577399' }} /></LineChart></ResponsiveContainer></div>}</div></section>
+}
 
 function ScoreCard(props: {
   credit: CreditScoreResult | null
@@ -349,7 +375,7 @@ function ScoreCard(props: {
                 ? 'Compute your score from linked cash flow to see your credit standing.'
                 : 'Your score is computed from linked accounts and transaction history.'}
             </p>
-            <Button size="sm" onClick={props.onCompute} disabled={props.computing}>
+            <Button size="sm" onClick={props.onCompute} loading={props.computing}>
               {props.computing ? 'Computing…' : 'Compute score'}
             </Button>
           </div>
@@ -433,36 +459,9 @@ function SpendingChartCard(props: { summary: Summary }) {
             body="Connect a bank or upload a statement to see your category breakdown."
           />
         ) : (
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(23,33,27,0.08)" />
-                <XAxis
-                  dataKey="label"
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 11, fill: 'rgba(23,33,27,0.55)' }}
-                  interval={0}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  width={44}
-                  tick={{ fontSize: 11, fill: 'rgba(23,33,27,0.55)' }}
-                  tickFormatter={(value: number) => compactRwf(value)}
-                />
-                <Tooltip
-                  cursor={{ fill: 'rgba(23,33,27,0.04)' }}
-                  formatter={(value) => formatRwf(String(value))}
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: '1px solid rgba(23,33,27,0.1)',
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="amount" fill="#2f6f8f" radius={[5, 5, 0, 0]} maxBarSize={48} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="grid items-center gap-3 sm:grid-cols-[minmax(170px,0.8fr)_1fr]">
+            <div className="h-52"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chartData} dataKey="amount" nameKey="label" innerRadius="55%" outerRadius="82%" paddingAngle={3} stroke="none">{chartData.map((entry, index) => <Cell key={entry.label} fill={['#577399', '#768eb0', '#bdd5ea', '#237a57', '#c88520', '#fe5f55'][index % 6]} />)}</Pie><Tooltip formatter={(value) => formatRwf(String(value))} contentStyle={{ borderRadius: 14, border: '1px solid #d7e6f3', fontSize: 12 }} /></PieChart></ResponsiveContainer></div>
+            <ul className="space-y-2.5">{chartData.map((entry, index) => <li key={entry.label} className="flex items-center justify-between gap-2 text-xs"><span className="flex min-w-0 items-center gap-2 text-ink/65"><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: ['#577399', '#768eb0', '#bdd5ea', '#237a57', '#c88520', '#fe5f55'][index % 6] }} />{entry.label}</span><span className="shrink-0 font-medium text-ink tabular">{compactRwf(entry.amount)}</span></li>)}</ul>
           </div>
         )}
       </div>
