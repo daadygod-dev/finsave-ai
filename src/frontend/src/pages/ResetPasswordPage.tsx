@@ -109,7 +109,7 @@ export function ResetPasswordPage() {
       {processing ? (
         <div className="card-shell">
           <div className="card-inner flex flex-col items-center gap-3 p-6 sm:p-8">
-            <Spinner size={24} label="Validating reset link" className="text-palm" />
+            <Spinner size={24} label="Validating reset link" className="text-brand" />
             <p className="text-sm text-ink/55">Validating your reset link…</p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export function ResetPasswordPage() {
             </p>
             <Link
               to="/forgot-password"
-              className="rounded-full bg-palm px-4 py-2 text-sm font-semibold text-white outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-palm/90 focus-visible:ring-2 focus-visible:ring-lake focus-visible:ring-offset-2 focus-visible:ring-offset-ledger"
+              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-brand/90 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
               Request a new link
             </Link>

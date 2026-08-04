@@ -75,7 +75,7 @@ export function ConfirmEmailPage() {
         <div className="card-inner flex flex-col items-center gap-3 p-6 text-center sm:p-8">
           {processing ? (
             <>
-              <Spinner size={24} label="Confirming email" className="text-palm" />
+              <Spinner size={24} label="Confirming email" className="text-brand" />
               <p className="text-sm text-ink/55">Confirming your email…</p>
             </>
           ) : error ? (
@@ -93,7 +93,7 @@ export function ConfirmEmailPage() {
                 )}
                 <Link
                   to="/login"
-                  className="rounded-full border border-ink/15 bg-white px-4 py-1.5 text-xs font-semibold text-ink/80 outline-none transition-colors duration-200 hover:border-ink/30 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake"
+                  className="rounded-full border border-ink/15 bg-white px-4 py-1.5 text-xs font-semibold text-ink/80 outline-none transition-colors duration-200 hover:border-ink/30 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
                 >
                   Go to sign in
                 </Link>
@@ -101,8 +101,8 @@ export function ConfirmEmailPage() {
             </>
           ) : (
             <>
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-palm/10">
-                <MailCheck size={24} aria-hidden="true" className="text-palm" />
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10">
+                <MailCheck size={24} aria-hidden="true" className="text-brand" />
               </span>
               <p className="text-sm text-ink/55">Finishing setup…</p>
             </>

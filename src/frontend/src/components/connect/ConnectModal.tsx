@@ -133,7 +133,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
     <Modal open={open} onClose={handleClose} label="Connect an account" wide>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-palm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             Connect an account
           </p>
           <h2 className="mt-1 text-xl font-semibold">
@@ -147,7 +147,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
         </div>
         <button
           onClick={handleClose}
-          className="rounded-full p-2 text-ink/50 outline-none transition-colors duration-300 hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake"
+          className="rounded-full p-2 text-ink/50 outline-none transition-colors duration-300 hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
           aria-label="Close"
         >
           <X size={18} />
@@ -158,24 +158,24 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => setMode('plaid')}
-            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake ${
+            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
               mode === 'plaid'
-                ? 'border-palm bg-palm/[0.05] text-ink'
+                ? 'border-brand/60 bg-brand/[0.05] text-ink'
                 : 'border-ink/10 text-ink/60 hover:border-ink/25'
             }`}
           >
-            <Landmark size={18} aria-hidden="true" className="text-lake" />
-            Bank (Plaid)
+            <Landmark size={18} aria-hidden="true" className="text-brand" />
+            Bank Connection
           </button>
           <button
             onClick={() => setMode('csv')}
-            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake ${
+            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
               mode === 'csv'
-                ? 'border-palm bg-palm/[0.05] text-ink'
+                ? 'border-brand/60 bg-brand/[0.05] text-ink'
                 : 'border-ink/10 text-ink/60 hover:border-ink/25'
             }`}
           >
-            <Upload size={18} aria-hidden="true" className="text-lake" />
+            <Upload size={18} aria-hidden="true" className="text-brand" />
             Upload statement
           </button>
         </div>
@@ -183,12 +183,13 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
         {mode === 'plaid' ? (
           <div className="flex flex-col gap-3 rounded-xl border border-dashed border-ink/25 bg-ledger px-4 py-8 text-center">
             <p className="mx-auto max-w-sm text-sm text-ink/60">
-              You'll be taken to Plaid Link to choose your bank and authorize read-only access to
+              You'll be taken to Bank List to choose your bank and author
+              ize read-only access to
               your transactions. The connection is encrypted and stored securely.
             </p>
             <div className="mx-auto mt-1">
               <Button onClick={connectBank} disabled={connecting} size="lg">
-                {connecting ? 'Opening Plaid Link…' : 'Connect a bank'}
+                {connecting ? 'Connecting…' : 'Connect a bank'}
               </Button>
             </div>
           </div>
@@ -202,13 +203,13 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
                     setSource('momo_csv')
                     setInstitution('MTN MoMo')
                   }}
-                  className={`rounded-xl border p-3 text-left text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake ${
+                  className={`rounded-xl border p-3 text-left text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
                     source === 'momo_csv'
-                      ? 'border-palm bg-palm/[0.05] text-ink'
+                      ? 'border-brand/60 bg-brand/[0.05] text-ink'
                       : 'border-ink/10 text-ink/60 hover:border-ink/25'
                   }`}
                 >
-                  <Smartphone size={18} aria-hidden="true" className="mb-1 text-lake" />
+                  <Smartphone size={18} aria-hidden="true" className="mb-1 text-brand" />
                   Mobile money
                 </button>
                 <button
@@ -216,13 +217,13 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
                     setSource('bank_csv')
                     setInstitution('Bank of Kigali')
                   }}
-                  className={`rounded-xl border p-3 text-left text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake ${
+                  className={`rounded-xl border p-3 text-left text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
                     source === 'bank_csv'
-                      ? 'border-palm bg-palm/[0.05] text-ink'
+                      ? 'border-brand/60 bg-brand/[0.05] text-ink'
                       : 'border-ink/10 text-ink/60 hover:border-ink/25'
                   }`}
                 >
-                  <Landmark size={18} aria-hidden="true" className="mb-1 text-lake" />
+                  <Landmark size={18} aria-hidden="true" className="mb-1 text-brand" />
                   Bank statement
                 </button>
               </div>
@@ -233,7 +234,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
               <input
                 value={institution}
                 onChange={(event) => setInstitution(event.target.value)}
-                className="rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition-colors duration-300 focus:border-lake focus:ring-2 focus:ring-lake/30"
+                className="rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition-colors duration-300 focus:border-brand/50 focus:ring-2 focus:ring-brand/25"
                 placeholder="e.g. MTN MoMo"
               />
             </label>
@@ -248,9 +249,9 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
               </p>
               <button
                 onClick={() => document.getElementById('csv-file-input')?.click()}
-                className="flex w-full flex-col items-center gap-2 rounded-xl border border-dashed border-ink/25 bg-ledger px-4 py-8 text-sm text-ink/60 outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-lake hover:text-ink focus-visible:ring-2 focus-visible:ring-lake"
+                className="flex w-full flex-col items-center gap-2 rounded-xl border border-dashed border-ink/25 bg-ledger px-4 py-8 text-sm text-ink/60 outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-brand hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
               >
-                <Upload size={22} aria-hidden="true" className="text-lake" />
+                <Upload size={22} aria-hidden="true" className="text-brand" />
                 {fileName ? (
                   <span className="font-medium text-ink">{fileName}</span>
                 ) : (

@@ -70,8 +70,12 @@ export function GoalsPage() {
           'Your current cash flow shows no surplus to save from.',
         )
       }
+
+      // Refresh the list so the new goal (with its server-side feasibility)
+      // appears immediately instead of on the next manual reload.
+      void reload()
     },
-    [toast],
+    [reload, toast],
   )
 
   const removeGoal = useCallback(
@@ -557,7 +561,7 @@ function GoalsSkeleton() {
   return (
     <div className="grid gap-5 md:grid-cols-2">
       {Array.from({ length: 4 }, (_, index) => (
-        <div key={index} className="h-56 animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/60" />
+        <div key={index} className="h-56 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
       ))}
     </div>
   )

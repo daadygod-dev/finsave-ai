@@ -120,13 +120,13 @@ export function LoginPage() {
             <div className="flex items-center justify-between text-sm">
               <Link
                 to="/signup"
-                className="font-medium text-lake outline-none transition-colors duration-200 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake rounded"
+                className="font-medium text-brand outline-none transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand rounded"
               >
                 Create an account
               </Link>
               <Link
                 to="/forgot-password"
-                className="font-medium text-lake outline-none transition-colors duration-200 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake rounded"
+                className="font-medium text-brand outline-none transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand rounded"
               >
                 Forgot password?
               </Link>

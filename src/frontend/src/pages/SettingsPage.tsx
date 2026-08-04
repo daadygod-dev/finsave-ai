@@ -27,6 +27,7 @@ import { useAuth, type AuthUser } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useAsync } from '../hooks/useAsync'
 import { SOURCE_BADGES, SOURCE_LABELS } from '../lib/sources'
+import { displayName } from '../lib/userProfile'
 import { formatDate } from '../lib/format'
 import { supabase } from '../lib/supabase'
 
@@ -34,12 +35,6 @@ const SOURCE_ICONS: Record<AccountSource, typeof Landmark> = {
   plaid_bank: Landmark,
   bank_csv: Landmark,
   momo_csv: Smartphone,
-}
-
-function displayName(user: { fullName?: string; email: string } | null): string {
-  if (user?.fullName) return user.fullName
-  if (user?.email) return user.email.split('@')[0]
-  return '—'
 }
 
 export function SettingsPage() {
@@ -504,7 +499,7 @@ function Toggle({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative h-7 w-12 shrink-0 rounded-full outline-none transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake focus-visible:ring-offset-2 focus-visible:ring-offset-ledger disabled:opacity-50 ${
+      className={`relative h-7 w-12 shrink-0 rounded-full outline-none transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 ${
         checked ? 'bg-palm' : 'bg-ink/15'
       }`}
     >

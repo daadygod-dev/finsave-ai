@@ -63,9 +63,12 @@ const FACTOR_IMPROVE: Record<keyof CreditScoreResult['factors'], string> = {
 export function CreditScorePage() {
   const toast = useToast()
   const { data, error, loading, reload } = useAsync(() => api.creditScore.get(), [])
-  const history = useAsync(() => api.creditScore.history(), [])
+  // History only matters once a score exists; the endpoint is msme_owner
+  // gated, so don't fire it (and a 403) for individual accounts.
+  const history = useAsync(() => api.creditScore.history(), [data !== null])
   const summary = useAsync(() => api.summarize(), [])
   const noScoreYet = error?.code === 'credit_score_not_found'
+  const roleGated = error?.code === 'forbidden' || error?.status === 403
 
   const handleComputed = useCallback(
     (result: CreditScoreResult) => {
@@ -85,8 +88,19 @@ export function CreditScorePage() {
       />
 
       {loading ? (
-        <div className="flex h-72 items-center justify-center rounded-[1.75rem] border border-ink/10 bg-white/60">
+        <div className="flex h-72 items-center justify-center rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]">
           <Spinner size={26} label="Loading credit score" className="text-palm" />
+        </div>
+      ) : roleGated ? (
+        <div className="card-shell animate-fade-up">
+          <div className="card-inner p-6">
+            <p className="text-sm font-semibold text-ink">Available for MSME owner accounts</p>
+            <p className="mt-1 max-w-xl text-sm leading-relaxed text-ink/60">
+              Credit scoring is an MSME feature — it reads your business cash flow across every
+              linked account. If you manage a business, switch your account type to MSME owner to
+              compute a score here.
+            </p>
+          </div>
         </div>
       ) : error && !noScoreYet ? (
         <ErrorState

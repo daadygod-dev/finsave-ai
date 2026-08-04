@@ -165,6 +165,12 @@ export function TransactionsPage() {
 
       {/* Spending analysis strip — derived from the live summary endpoint */}
       <SpendingAnalysis summary={summary.data} loading={summary.loading} />
+      {(from || to) && (
+        <p className="-mt-2 text-xs text-ink/45">
+          Income and spending above cover your full history — the table below is filtered to the
+          selected date range.
+        </p>
+      )}
 
       {transactions.error ? (
         <ErrorState
@@ -437,7 +443,7 @@ function CategorySelect(props: { value: string; onChange: (category: Transaction
 function TransactionsSkeleton() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="h-24 animate-pulse rounded-2xl border border-ink/10 bg-white/60" />
+      <div className="h-24 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
       <div className="card-shell">
         <div className="card-inner flex flex-col gap-3 p-6">
           {Array.from({ length: 8 }, (_, index) => (

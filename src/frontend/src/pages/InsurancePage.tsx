@@ -153,7 +153,7 @@ export function InsurancePage() {
         {/* Results */}
         <div className="flex flex-col gap-4">
           {loading ? (
-            <div className="flex h-64 items-center justify-center rounded-[1.75rem] border border-ink/10 bg-white/60">
+            <div className="flex h-64 items-center justify-center rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]">
               <Spinner size={26} label="Finding matches" className="text-palm" />
             </div>
           ) : error ? (

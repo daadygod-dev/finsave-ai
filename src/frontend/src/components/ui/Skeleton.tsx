@@ -17,7 +17,7 @@ export function SkeletonCard({ className, ...props }: HTMLAttributes<HTMLDivElem
   return (
     <div
       aria-hidden="true"
-      className={cx('animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/70', className)}
+      className={cx('animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]', className)}
       {...props}
     />
   )

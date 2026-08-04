@@ -31,6 +31,7 @@ import { ErrorState } from '../components/ui/ErrorState'
 import { useAsync } from '../hooks/useAsync'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
+import { firstName } from '../lib/userProfile'
 import { categoryLabel, categoryMeta } from '../lib/categories'
 import { SOURCE_LABELS } from '../lib/sources'
 import { compactRwf, formatDate, formatRwf, formatSignedRwf } from '../lib/format'
@@ -46,12 +47,6 @@ function greeting(): string {
   if (hour < 12) return 'Good morning'
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
-}
-
-function displayName(user: { fullName?: string; email: string } | null): string {
-  if (user?.fullName) return user.fullName.split(' ')[0]
-  if (user?.email) return user.email.split('@')[0] || 'there'
-  return 'there'
 }
 
 const SCORE_BANDS = [
@@ -208,11 +203,11 @@ export function DashboardPage() {
         {/* Page header */}
         <header className="flex flex-col gap-4 border-b border-ink/10 pb-6 md:flex-row md:items-end md:justify-between">
           <div className="animate-fade-up">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-palm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
               Dashboard
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
-              {greeting()}, {displayName(user)}
+              {greeting()}, {firstName(user)}
             </h1>
             <p className="mt-1 max-w-xl text-sm text-ink/60">
               Your money at a glance — real balances, spending, credit standing, and savings across
@@ -663,15 +658,15 @@ function DashboardSkeleton() {
       aria-label="Loading dashboard"
     >
       <div className="flex flex-col gap-6">
-        <div className="h-64 animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/60" />
+        <div className="h-64 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="h-72 animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/60" />
-          <div className="h-72 animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/60" />
+          <div className="h-72 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
+          <div className="h-72 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
         </div>
       </div>
       <div className="flex flex-col gap-6">
-        <div className="h-56 animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/60" />
-        <div className="h-80 animate-pulse rounded-[1.75rem] border border-ink/10 bg-white/60" />
+        <div className="h-56 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
+        <div className="h-80 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { Spinner } from './Spinner'
 export function PageLoader({ label = 'Loading' }: { label?: string }) {
   return (
     <div
-      className="flex min-h-screen flex-col items-center justify-center gap-3 bg-ledger text-ink"
+      className="flex min-h-screen flex-col items-center justify-center gap-3 bg-white text-ink"
       role="status"
     >
       <span className="text-palm">

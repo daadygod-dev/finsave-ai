@@ -10,7 +10,7 @@ type PagePlaceholderProps = {
 /** Route scaffold for features that land in later milestones. */
 export function PagePlaceholder({ title, description, milestone, icon: Icon }: PagePlaceholderProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-dashed border-ink/15 bg-white/60 px-6 py-24 text-center">
+    <div className="flex flex-col items-center justify-center gap-4 rounded-[1.25rem] border border-dashed border-ink/15 bg-ink/[0.04] px-6 py-24 text-center">
       <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-palm/10">
         <Icon size={28} strokeWidth={1.75} aria-hidden="true" className="text-palm" />
       </span>

@@ -42,8 +42,8 @@ export function ForgotPasswordPage() {
       <AuthLayout>
         <div className="card-shell">
           <div className="card-inner flex flex-col items-center gap-3 p-6 text-center sm:p-8">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-palm/10">
-              <MailCheck size={24} aria-hidden="true" className="text-palm" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10">
+              <MailCheck size={24} aria-hidden="true" className="text-brand" />
             </span>
             <h2 className="text-lg font-semibold tracking-tight">Reset link sent</h2>
             <p className="max-w-sm text-sm leading-relaxed text-ink/55">
@@ -52,7 +52,7 @@ export function ForgotPasswordPage() {
             </p>
             <Link
               to="/login"
-              className="mt-2 text-sm font-medium text-lake outline-none rounded transition-colors duration-200 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake"
+              className="mt-2 text-sm font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand"
             >
               Back to sign in
             </Link>
@@ -109,7 +109,7 @@ export function ForgotPasswordPage() {
               Remembered it?{' '}
               <Link
                 to="/login"
-                className="font-medium text-lake outline-none rounded transition-colors duration-200 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake"
+                className="font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand"
               >
                 Sign in
               </Link>
