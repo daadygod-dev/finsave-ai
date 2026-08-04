@@ -61,6 +61,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
             })
             await api.plaid.syncTransactions(account.id)
             toast.success('Bank connected', `${account.institution} is linked and synced.`)
+            reset()
             onConnected()
           } catch (exchangeError) {
             setError(
@@ -115,6 +116,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
         csv: fileText,
       })
       toast.success('Statement imported', `${result.imported} transactions added.`)
+      reset()
       onConnected()
     } catch (uploadError) {
       setError(

@@ -1,7 +1,6 @@
 import { Sparkles, RefreshCw, TrendingUp, AlertTriangle, PiggyBank, Target, ShieldCheck } from 'lucide-react'
 import { api } from '../../api/endpoints'
 import type { CoachInsight } from '../../api/types'
-import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'
 import { ErrorState } from '../ui/ErrorState'
 import { Skeleton } from '../ui/Skeleton'
@@ -97,18 +96,6 @@ export function CoachCard({ compact = false, title = 'AI coach', className }: Co
               )
             })}
           </ul>
-        )}
-
-        {compact && insights.length > 3 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-3"
-            onClick={() => undefined}
-            title="Open the full dashboard to see all insights"
-          >
-            {insights.length - 3} more insight{insights.length - 3 === 1 ? '' : 's'} in your feed
-          </Button>
         )}
       </div>
     </section>
