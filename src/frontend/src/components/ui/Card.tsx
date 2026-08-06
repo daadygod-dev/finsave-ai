@@ -8,8 +8,7 @@ type CardProps = HTMLAttributes<HTMLElement> & {
 }
 
 /**
- * Double-bezel card: an outer shell enclosing an inner core so cards read
- * as machined surfaces rather than flat boxes (see styles.css).
+ * Shared white application surface with a restrained diffuse elevation.
  */
 export function Card({ padded = true, as: Tag = 'section', className, children, ...props }: CardProps) {
   return (

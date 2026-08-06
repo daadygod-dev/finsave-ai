@@ -16,7 +16,7 @@ const TYPE_ICONS: Record<CoachInsight['type'], typeof Sparkles> = {
 }
 
 const TONE_STYLES: Record<CoachInsight['tone'], { ring: string; icon: string }> = {
-  info: { ring: 'border-lake/25 bg-lake/5', icon: 'text-lake' },
+  info: { ring: 'border-brand/25 bg-brand/5', icon: 'text-brand' },
   success: { ring: 'border-palm/25 bg-palm/5', icon: 'text-palm' },
   warning: { ring: 'border-maize/40 bg-maize/10', icon: 'text-ink/70' },
 }

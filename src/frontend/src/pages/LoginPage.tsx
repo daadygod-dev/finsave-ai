@@ -62,7 +62,7 @@ export function LoginPage() {
   return (
     <AuthLayout>
       <form onSubmit={submit} className="card-shell">
-        <div className="card-inner p-6 sm:p-8">
+        <div className="card p-6 sm:p-8">
           <h2 className="text-lg font-semibold tracking-tight">Sign in</h2>
           <p className="mt-1 text-sm leading-relaxed text-ink/55">
             Enter your email and password to open your FinSave workspace.
@@ -120,13 +120,13 @@ export function LoginPage() {
             <div className="flex items-center justify-between text-sm">
               <Link
                 to="/signup"
-                className="font-medium text-brand outline-none transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand rounded"
+                className="font-medium text-brand outline-none transition-colors duration-200 hover:text-brand-deep focus-visible:ring-2 focus-visible:ring-brand rounded"
               >
                 Create an account
               </Link>
               <Link
                 to="/forgot-password"
-                className="font-medium text-brand outline-none transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand rounded"
+                className="font-medium text-brand outline-none transition-colors duration-200 hover:text-brand-deep focus-visible:ring-2 focus-visible:ring-brand rounded"
               >
                 Forgot password?
               </Link>

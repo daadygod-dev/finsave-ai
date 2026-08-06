@@ -3,18 +3,18 @@ import { cx } from '../../lib/cx'
 type ProgressBarProps = {
   value: number
   max?: number
-  tone?: 'palm' | 'lake' | 'maize' | 'brick'
+  tone?: 'palm' | 'brand' | 'maize' | 'brick'
   className?: string
 }
 
 const TONES = {
   palm: 'bg-palm',
-  lake: 'bg-lake',
+  brand: 'bg-brand',
   maize: 'bg-maize',
   brick: 'bg-brick',
 } as const
 
-export function ProgressBar({ value, max = 100, tone = 'lake', className }: ProgressBarProps) {
+export function ProgressBar({ value, max = 100, tone = 'brand', className }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(max, value))
 
   return (

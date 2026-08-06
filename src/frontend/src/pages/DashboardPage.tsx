@@ -9,6 +9,7 @@ import {
   Landmark,
   Plus,
   RefreshCw,
+  RotateCw,
   ShieldCheck,
   Smartphone,
 } from 'lucide-react'
@@ -34,6 +35,7 @@ import { CoachCard } from '../components/coach/CoachCard'
 import { ConnectModal } from '../components/connect/ConnectModal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
+import { Modal } from '../components/ui/Modal'
 import { useAsync } from '../hooks/useAsync'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
@@ -57,7 +59,7 @@ function greeting(): string {
 
 const SCORE_BANDS = [
   { label: 'Strong', min: 80, tone: 'text-palm' },
-  { label: 'Good', min: 60, tone: 'text-lake' },
+  { label: 'Good', min: 60, tone: 'text-brand' },
   { label: 'Fair', min: 40, tone: 'text-maize' },
   { label: 'Building', min: 0, tone: 'text-brick' },
 ]
@@ -111,6 +113,7 @@ export function DashboardPage() {
   const { user } = useAuth()
   const [activeAccountId, setActiveAccountId] = useState<string | undefined>(undefined)
   const [connectOpen, setConnectOpen] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const [computingScore, setComputingScore] = useState(false)
 
   const { data, error, loading, reload } = useAsync(
@@ -207,12 +210,12 @@ export function DashboardPage() {
     <>
       <div className="flex flex-col gap-6">
         {/* Page header */}
-        <header className="flex flex-col gap-4 border-b border-ink/10 pb-6 md:flex-row md:items-end md:justify-between">
+        <header className="flex flex-col gap-4  pb-6 md:flex-row md:items-end md:justify-between">
           <div className="animate-fade-up">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">
               Dashboard
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-ink">
               {greeting()}, {firstName(user)}
             </h1>
             <p className="mt-1 max-w-xl text-sm text-ink/60">
@@ -221,26 +224,26 @@ export function DashboardPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={reload}
-              className="group"
-            >
-              <RefreshCw size={16} aria-hidden="true" className="group-hover:rotate-180 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]" />
-              Refresh
-            </Button>
-            <Button
-              onClick={() => setConnectOpen(true)}
-              className="group min-w-[164px]"
-            >
-              <Plus size={16} aria-hidden="true" />
-              Connect account
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#bdd5ea] text-[#1e242a] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
-                <ArrowUpRight size={15} aria-hidden="true" />
-              </span>
-            </Button>
-          </div>
+         <div className="flex flex-wrap items-stretch gap-3">
+  <Button
+    variant="secondary"
+    onClick={reload}
+    className="group flex items-center justify-center gap-2"
+  >
+    <RotateCw size={16} aria-hidden="true" className="group-hover:rotate-180 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]" />
+    Refresh
+  </Button>
+  <Button
+    onClick={() => setConnectOpen(true)}
+    className="group min-w-[164px] flex items-center justify-center gap-2"
+  >
+    Connect account
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#eaecee] text-[#1e242a] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
+      <ArrowUpRight size={15} aria-hidden="true" />
+    </span>
+  </Button>
+</div>
+
         </header>
 
         {/* Body */}
@@ -257,19 +260,11 @@ export function DashboardPage() {
         ) : data ? (
           <>
             <KpiGrid summary={data.summary} credit={credit.data} loading={credit.loading} />
-            <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr_0.95fr]">
+            <div className="grid gap-6 xl:grid-cols-2">
               <SpendingChartCard summary={data.summary} />
               <CashFlowCard summary={data.summary} />
-              <TransactionsCard transactions={data.transactions} activeAccountId={activeAccountId} />
             </div>
             <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-              <AccountsCard
-                accounts={data.accounts}
-                balances={balances}
-                activeAccountId={activeAccountId}
-                onSelectAccount={selectAccount}
-                onConnect={() => setConnectOpen(true)}
-              />
               <ScoreCard
                 credit={credit.data}
                 loading={credit.loading}
@@ -278,8 +273,9 @@ export function DashboardPage() {
                 computing={computingScore}
                 onCompute={computeScore}
               />
+              <TransactionsCard transactions={data.transactions} activeAccountId={activeAccountId} />
             </div>
-            <div className="grid gap-6 lg:grid-cols-2"><AlertsCard alerts={alerts} /><CoachCard title="Your AI coach" /></div>
+            <section className="card-shell animate-fade-up"><div className="card-inner flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-base font-semibold text-ink">More account detail is available when you need it.</p><p className="mt-1 text-sm text-ink/55">Review linked accounts, alerts, and coaching guidance in a focused full-screen view.</p></div><Button variant="secondary" onClick={() => setDetailsOpen(true)}>Open financial details</Button></div></section>
           </>
         ) : null}
       </div>
@@ -292,6 +288,7 @@ export function DashboardPage() {
           void reload()
         }}
       />
+      {data && <Modal open={detailsOpen} onClose={() => setDetailsOpen(false)} label="Financial details" fullPage><div className="mx-auto flex w-full max-w-6xl flex-col gap-6"><header className="flex items-center justify-between gap-4 border-b border-[#d7e6f3] pb-5"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Financial details</p><h2 className="mt-1 text-2xl font-semibold text-ink">Accounts, alerts & guidance</h2></div><Button variant="secondary" onClick={() => setDetailsOpen(false)}>Close</Button></header><div className="grid gap-6 xl:grid-cols-2"><AccountsCard accounts={data.accounts} balances={balances} activeAccountId={activeAccountId} onSelectAccount={selectAccount} onConnect={() => { setDetailsOpen(false); setConnectOpen(true) }} /><AlertsCard alerts={alerts} /></div><CoachCard title="Your AI coach" /></div></Modal>}
     </>
   )
 }
@@ -306,17 +303,17 @@ function KpiGrid(props: { summary: Summary; credit: CreditScoreResult | null; lo
   const balance = income - spending
   const savingsRate = income > 0n ? Math.max(0, Math.round((Number(balance) / Number(income)) * 100)) : 0
   const cards = [
-    { label: 'Net cash flow', value: formatRwf(balance), icon: CircleDollarSign, tone: 'text-lake', note: 'Across linked accounts' },
+    { label: 'Net cash flow', value: formatRwf(balance), icon: CircleDollarSign, tone: 'text-brand', note: 'Across linked accounts' },
     { label: 'Income', value: formatRwf(income), icon: Download, tone: 'text-palm', note: 'This reporting period' },
     { label: 'Expenses', value: formatRwf(spending), icon: Banknote, tone: 'text-brick', note: 'This reporting period' },
-    { label: 'Savings rate', value: `${savingsRate}%`, icon: CircleGauge, tone: 'text-lake', note: props.loading ? 'Checking score…' : props.credit ? `Credit score ${props.credit.score}/100` : 'Build a score from activity' },
+    { label: 'Savings rate', value: `${savingsRate}%`, icon: CircleGauge, tone: 'text-brand', note: props.loading ? 'Checking score…' : props.credit ? `Credit score ${props.credit.score}/100` : 'Build a score from activity' },
   ]
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Financial overview">
+    <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4" aria-label="Financial overview">
       {cards.map((card, index) => {
         const Icon = card.icon
-        return <div key={card.label} className="card-shell animate-fade-up" style={{ animationDelay: `${index * 45}ms` }}><div className="card-inner p-5"><div className="flex items-start justify-between gap-3"><p className="text-sm font-medium text-ink/65">{card.label}</p><span className={`flex h-9 w-9 items-center justify-center rounded-xl bg-ledger ${card.tone}`}><Icon size={19} aria-hidden="true" /></span></div><p className="mt-4 truncate text-2xl font-semibold tracking-tight text-ink tabular">{card.value}</p><p className="mt-1 text-xs text-ink/50">{card.note}</p></div></div>
+        return <div key={card.label} className="card-shell animate-fade-up" style={{ animationDelay: `${index * 45}ms` }}><div className="card-inner p-6"><div className="flex items-start justify-between gap-3"><p className="text-sm font-medium text-ink/65">{card.label}</p><span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 ${card.tone}`}><Icon size={19} aria-hidden="true" /></span></div><p className="mt-5 truncate text-2xl font-semibold tracking-[-0.035em] text-ink tabular">{card.value}</p><p className="mt-1.5 text-xs text-ink/50">{card.note}</p></div></div>
       })}
     </section>
   )
@@ -324,7 +321,7 @@ function KpiGrid(props: { summary: Summary; credit: CreditScoreResult | null; lo
 
 function CashFlowCard({ summary }: { summary: Summary }) {
   const data = summary.byMonth.map((item) => ({ month: item.month, amount: Number(item.amountMinor) }))
-  return <section className="card-shell animate-fade-up"><div className="card-inner h-full p-6"><div className="mb-5 flex items-center gap-2"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-lake/10 text-lake"><CircleDollarSign size={18} aria-hidden="true" /></span><div><h2 className="text-lg font-semibold">Cash flow</h2><p className="text-xs text-ink/50">Monthly recorded activity</p></div></div>{data.length === 0 ? <EmptyState title="No cash flow yet" body="Connect an account or import a statement to see activity over time." /> : <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{ top: 8, right: 4, left: -12, bottom: 0 }}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(87,115,153,0.13)" /><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#667a8f' }} /><YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#667a8f' }} tickFormatter={compactRwf} /><Tooltip formatter={(value) => formatRwf(String(value))} contentStyle={{ borderRadius: 14, border: '1px solid #d7e6f3', fontSize: 12 }} /><Line type="monotone" dataKey="amount" stroke="#577399" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#577399' }} /></LineChart></ResponsiveContainer></div>}</div></section>
+  return <section className="card-shell animate-fade-up"><div className="card-inner h-full p-6"><div className="mb-5 flex items-center gap-2"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand"><CircleDollarSign size={18} aria-hidden="true" /></span><div><h2 className="text-lg font-semibold">Cash flow</h2><p className="text-xs text-ink/50">Monthly recorded activity</p></div></div>{data.length === 0 ? <EmptyState title="No cash flow yet" body="Connect an account or import a statement to see activity over time." /> : <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{ top: 8, right: 4, left: -12, bottom: 0 }}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(112,201,94,0.12)" /><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#74809a' }} /><YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#74809a' }} tickFormatter={compactRwf} /><Tooltip formatter={(value) => formatRwf(String(value))} contentStyle={{ borderRadius: 14, border: '1px solid #edf0f6', fontSize: 12 }} /><Line type="monotone" dataKey="amount" stroke="#70C95E" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#70C95E' }} /></LineChart></ResponsiveContainer></div>}</div></section>
 }
 
 function ScoreCard(props: {
@@ -415,7 +412,7 @@ function ScoreCard(props: {
                   <div className="flex items-center gap-3">
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
                       <div
-                        className="h-full rounded-full bg-lake transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                        className="h-full rounded-full bg-brand transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]"
                         style={{ width: `${props.credit!.factors[factor.key]}%` }}
                       />
                     </div>
@@ -460,8 +457,8 @@ function SpendingChartCard(props: { summary: Summary }) {
           />
         ) : (
           <div className="grid items-center gap-3 sm:grid-cols-[minmax(170px,0.8fr)_1fr]">
-            <div className="h-52"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chartData} dataKey="amount" nameKey="label" innerRadius="55%" outerRadius="82%" paddingAngle={3} stroke="none">{chartData.map((entry, index) => <Cell key={entry.label} fill={['#577399', '#768eb0', '#bdd5ea', '#237a57', '#c88520', '#fe5f55'][index % 6]} />)}</Pie><Tooltip formatter={(value) => formatRwf(String(value))} contentStyle={{ borderRadius: 14, border: '1px solid #d7e6f3', fontSize: 12 }} /></PieChart></ResponsiveContainer></div>
-            <ul className="space-y-2.5">{chartData.map((entry, index) => <li key={entry.label} className="flex items-center justify-between gap-2 text-xs"><span className="flex min-w-0 items-center gap-2 text-ink/65"><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: ['#577399', '#768eb0', '#bdd5ea', '#237a57', '#c88520', '#fe5f55'][index % 6] }} />{entry.label}</span><span className="shrink-0 font-medium text-ink tabular">{compactRwf(entry.amount)}</span></li>)}</ul>
+            <div className="h-52"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chartData} dataKey="amount" nameKey="label" innerRadius="55%" outerRadius="82%" paddingAngle={3} stroke="none">{chartData.map((entry, index) => <Cell key={entry.label} fill={['#70C95E', '#9BDB8E', '#C2EBB9', '#237a57', '#c88520', '#fe5f55'][index % 6]} />)}</Pie><Tooltip formatter={(value) => formatRwf(String(value))} contentStyle={{ borderRadius: 14, border: '1px solid #edf0f6', fontSize: 12 }} /></PieChart></ResponsiveContainer></div>
+            <ul className="space-y-2.5">{chartData.map((entry, index) => <li key={entry.label} className="flex items-center justify-between gap-2 text-xs"><span className="flex min-w-0 items-center gap-2 text-ink/65"><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: ['#70C95E', '#9BDB8E', '#C2EBB9', '#237a57', '#c88520', '#fe5f55'][index % 6] }} />{entry.label}</span><span className="shrink-0 font-medium text-ink tabular">{compactRwf(entry.amount)}</span></li>)}</ul>
           </div>
         )}
       </div>
@@ -513,12 +510,12 @@ function AccountsCard(props: {
       <div className="card-inner p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Banknote size={20} aria-hidden="true" className="text-lake" />
+            <Banknote size={20} aria-hidden="true" className="text-brand" />
             <h2 className="text-lg font-semibold">Accounts</h2>
           </div>
           <button
             onClick={() => props.onSelectAccount(undefined)}
-            className={`rounded-full px-3 py-1 text-xs font-semibold outline-none transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake ${
+            className={`rounded-full px-3 py-1 text-xs font-semibold outline-none transition-colors duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand/20 ${
               props.activeAccountId === undefined
                 ? 'bg-ink text-white'
                 : 'bg-ink/5 text-ink/60 hover:bg-ink/10'
@@ -546,7 +543,7 @@ function AccountsCard(props: {
                 <li key={account.id}>
                   <button
                     onClick={() => props.onSelectAccount(active ? undefined : account.id)}
-                    className={`w-full rounded-2xl border p-4 text-left outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-lake ${
+                    className={`w-full rounded-2xl border p-4 text-left outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand/20 ${
                       active
                         ? 'border-palm/50 bg-palm/[0.04]'
                         : 'border-ink/10 bg-white hover:-translate-y-0.5 hover:border-ink/25'
@@ -554,10 +551,10 @@ function AccountsCard(props: {
                   >
                     <span className="flex items-center justify-between gap-3">
                       <span className="flex items-center gap-2.5">
-                        <Icon size={20} aria-hidden="true" className="text-lake" />
+                        <Icon size={20} aria-hidden="true" className="text-brand" />
                         <span className="font-semibold">{account.institution}</span>
                       </span>
-                      <Badge tone={account.source === 'plaid_bank' ? 'lake' : account.source === 'momo_csv' ? 'maize' : 'neutral'}>
+                      <Badge tone={account.source === 'plaid_bank' ? 'brand' : account.source === 'momo_csv' ? 'maize' : 'neutral'}>
                         {SOURCE_LABELS[account.source]}
                       </Badge>
                     </span>
@@ -589,7 +586,7 @@ function TransactionsCard(props: {
       <div className="card-inner p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Banknote size={20} aria-hidden="true" className="text-lake" />
+            <Banknote size={20} aria-hidden="true" className="text-brand" />
             <h2 className="text-lg font-semibold">Recent transactions</h2>
           </div>
           <span className="text-xs text-ink/50">{props.transactions.length} shown</span>
@@ -657,15 +654,15 @@ function DashboardSkeleton() {
       aria-label="Loading dashboard"
     >
       <div className="flex flex-col gap-6">
-        <div className="h-64 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
+        <div className="h-64 animate-pulse rounded-[24px] bg-neutral-300" />
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="h-72 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
-          <div className="h-72 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
+          <div className="h-72 animate-pulse rounded-2xl bg-neutral-300" />
+          <div className="h-72 animate-pulse rounded-2xl bg-neutral-300" />
         </div>
       </div>
       <div className="flex flex-col gap-6">
-        <div className="h-56 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
-        <div className="h-80 animate-pulse rounded-[1.25rem] border border-ink/10 bg-ink/[0.05]" />
+        <div className="h-56 animate-pulse rounded-2xl bg-neutral-300" />
+        <div className="h-80 animate-pulse rounded-[24px] bg-neutral-300" />
       </div>
     </div>
   )

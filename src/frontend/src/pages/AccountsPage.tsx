@@ -91,8 +91,8 @@ export function AccountsPage() {
       try {
         const result = await api.plaid.syncTransactions(account.id)
         toast.success(
-          'Account synced',
-          `${result.imported} new transaction${result.imported === 1 ? '' : 's'} imported from ${account.institution}.`,
+          'Sync started',
+          `${account.institution} is syncing in the background. Refresh shortly to see new transactions.`,
         )
         void accounts.reload()
         void summary.reload()
@@ -206,8 +206,8 @@ export function AccountsPage() {
                   <div className="card-inner flex flex-col gap-4 p-6">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-lake/10">
-                          <Icon size={20} aria-hidden="true" className="text-lake" />
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/10">
+                          <Icon size={20} aria-hidden="true" className="text-brand" />
                         </span>
                         <div className="min-w-0">
                           <p className="truncate font-semibold text-ink">{account.institution}</p>

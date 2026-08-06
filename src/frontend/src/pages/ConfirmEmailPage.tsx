@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MailCheck } from 'lucide-react'
 import { api } from '../api/endpoints'
@@ -8,6 +8,8 @@ import { AuthLayout } from '../components/layout/AuthLayout'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
 import { authErrorMessage } from '../lib/validators'
+import { supabase } from '../lib/supabase'
+import { setAccessToken } from '../lib/session'
 
 /**
  * Email-verification callback. Supabase emails link to
@@ -23,6 +25,7 @@ export function ConfirmEmailPage() {
   const [error, setError] = useState<string | null>(null)
   const [provisioning, setProvisioning] = useState(false)
   const [provisionFailed, setProvisionFailed] = useState(false)
+  const confirmationStarted = useRef(false)
 
   const provisionUser = useCallback(async () => {
     // The backend reads the role from the verified token's user_metadata.
@@ -46,19 +49,42 @@ export function ConfirmEmailPage() {
   }, [navigate, provisionUser, toast])
 
   useEffect(() => {
+    // React StrictMode replays effects in development; an email code can only
+    // be exchanged once, so never start a second confirmation attempt.
+    if (confirmationStarted.current) return
+    confirmationStarted.current = true
+
     const params = new URLSearchParams(window.location.search)
     const tokenHash = params.get('token_hash')
     const type = params.get('type')
+    const code = params.get('code')
+    const hashParams = new URLSearchParams(window.location.hash.slice(1))
+    const accessToken = hashParams.get('access_token')
+    const refreshToken = hashParams.get('refresh_token')
 
     async function confirm() {
-      if (!tokenHash || !type) {
-        setError('This verification link is incomplete. Try signing up again.')
-        setProcessing(false)
-        return
-      }
-
       try {
-        await verifyEmailOtp(tokenHash, type)
+        if (code) {
+          if (!supabase) throw new Error('Supabase is not configured.')
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeError || !data.session) throw exchangeError ?? new Error('Unable to establish a session.')
+          setAccessToken(data.session.access_token)
+        } else if (accessToken && refreshToken) {
+          if (!supabase) throw new Error('Supabase is not configured.')
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+          if (sessionError || !data.session) throw sessionError ?? new Error('Unable to establish a session.')
+          setAccessToken(data.session.access_token)
+        } else if (tokenHash && type) {
+          await verifyEmailOtp(tokenHash, type)
+        } else {
+          setError('This verification link is incomplete. Try signing up again.')
+          setProcessing(false)
+          return
+        }
+        window.history.replaceState({}, '', '/auth/confirm')
         await finish()
       } catch (verifyError) {
         setError(authErrorMessage(verifyError))

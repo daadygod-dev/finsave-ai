@@ -52,7 +52,7 @@ export function SettingsPage() {
       setSyncingId(account.id)
       try {
         const result = await api.plaid.syncTransactions(account.id)
-        toast.success('Account synced', `${result.imported} new transactions from ${account.institution}.`)
+        toast.success('Sync started', `${account.institution} is syncing in the background.`)
         void accounts.reload()
       } catch {
         toast.error('Sync failed', 'The bank rejected this sync — reconnect the account if it keeps failing.')
@@ -75,7 +75,7 @@ export function SettingsPage() {
       <section className="card-shell animate-fade-up">
         <div className="card-inner flex flex-col gap-5 p-6">
           <div className="flex items-center gap-2">
-            <UserCircle2 size={20} aria-hidden="true" className="text-lake" />
+            <UserCircle2 size={20} aria-hidden="true" className="text-brand" />
             <h2 className="text-lg font-semibold tracking-tight">Profile</h2>
           </div>
 
@@ -106,7 +106,7 @@ export function SettingsPage() {
       <section className="card-shell animate-fade-up" style={{ animationDelay: '50ms' }}>
         <div className="card-inner flex flex-col gap-5 p-6">
           <div className="flex items-center gap-2">
-            <KeyRound size={20} aria-hidden="true" className="text-lake" />
+            <KeyRound size={20} aria-hidden="true" className="text-brand" />
             <h2 className="text-lg font-semibold tracking-tight">Security</h2>
           </div>
 
@@ -151,7 +151,7 @@ export function SettingsPage() {
         <div className="card-inner p-6">
           <div className="mb-1 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Landmark size={20} aria-hidden="true" className="text-lake" />
+              <Landmark size={20} aria-hidden="true" className="text-brand" />
               <h2 className="text-lg font-semibold tracking-tight">Connected services</h2>
             </div>
             <Button size="sm" variant="secondary" onClick={() => setConnectOpen(true)}>
@@ -190,8 +190,8 @@ export function SettingsPage() {
                   return (
                     <li key={account.id} className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0">
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lake/10">
-                          <Icon size={18} aria-hidden="true" className="text-lake" />
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10">
+                          <Icon size={18} aria-hidden="true" className="text-brand" />
                         </span>
                         <div className="min-w-0">
                           <p className="truncate font-medium text-ink">{account.institution}</p>
@@ -416,7 +416,7 @@ function PreferencesSection() {
     <section className="card-shell animate-fade-up" style={{ animationDelay: '150ms' }}>
       <div className="card-inner p-6">
         <div className="flex items-center gap-2">
-          <Settings size={20} aria-hidden="true" className="text-lake" />
+          <Settings size={20} aria-hidden="true" className="text-brand" />
           <h2 className="text-lg font-semibold tracking-tight">Preferences</h2>
         </div>
         <p className="mt-1 text-sm text-ink/55">
@@ -426,8 +426,8 @@ function PreferencesSection() {
         <div className="mt-5 flex flex-col divide-y divide-ink/10">
           <div className="flex items-center justify-between gap-4 py-3.5">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-lake/10">
-                <Wallet size={16} aria-hidden="true" className="text-lake" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10">
+                <Wallet size={16} aria-hidden="true" className="text-brand" />
               </span>
               <div>
                 <p className="text-sm font-semibold text-ink">Currency</p>
@@ -439,8 +439,8 @@ function PreferencesSection() {
 
           <div className="flex items-center justify-between gap-4 py-3.5">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-lake/10">
-                <Bell size={16} aria-hidden="true" className="text-lake" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10">
+                <Bell size={16} aria-hidden="true" className="text-brand" />
               </span>
               <div>
                 <p className="text-sm font-semibold text-ink">Notifications</p>
@@ -457,8 +457,8 @@ function PreferencesSection() {
 
           <div className="flex items-center justify-between gap-4 py-3.5">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-lake/10">
-                <Sparkles size={16} aria-hidden="true" className="text-lake" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10">
+                <Sparkles size={16} aria-hidden="true" className="text-brand" />
               </span>
               <div>
                 <p className="text-sm font-semibold text-ink">AI coaching</p>

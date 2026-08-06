@@ -108,14 +108,14 @@ export function ResetPasswordPage() {
     <AuthLayout>
       {processing ? (
         <div className="card-shell">
-          <div className="card-inner flex flex-col items-center gap-3 p-6 sm:p-8">
+          <div className="card flex flex-col items-center gap-3 p-6 sm:p-8">
             <Spinner size={24} label="Validating reset link" className="text-brand" />
             <p className="text-sm text-ink/55">Validating your reset link…</p>
           </div>
         </div>
       ) : linkError ? (
         <div className="card-shell">
-          <div className="card-inner flex flex-col items-center gap-3 p-6 text-center sm:p-8">
+          <div className="card flex flex-col items-center gap-3 p-6 text-center sm:p-8">
             <p className="text-sm font-semibold text-brick">{linkError}</p>
             <p className="text-sm text-ink/55">
               Request a fresh link and try again — reset links expire quickly.
@@ -130,7 +130,7 @@ export function ResetPasswordPage() {
         </div>
       ) : (
         <form onSubmit={submit} className="card-shell">
-          <div className="card-inner p-6 sm:p-8">
+          <div className="card p-6 sm:p-8">
             <h2 className="text-lg font-semibold tracking-tight">Set a new password</h2>
             <p className="mt-1 text-sm leading-relaxed text-ink/55">
               Choose a strong password for your FinSave account.

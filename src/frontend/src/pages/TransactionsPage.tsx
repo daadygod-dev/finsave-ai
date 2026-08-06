@@ -78,6 +78,7 @@ export function TransactionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      
       <PageHeader
         eyebrow="Transactions"
         title="Transaction history"
@@ -97,7 +98,7 @@ export function TransactionsPage() {
                   setPage(1)
                 }}
                 placeholder="Search merchant…"
-                className="w-full rounded-full border border-ink/15 bg-white py-2 pl-9 pr-4 text-sm outline-none transition-colors duration-200 focus:border-lake focus:ring-2 focus:ring-lake/30 sm:w-56"
+                className="w-full rounded-full border border-ink/15 bg-white py-2 pl-9 pr-4 text-sm outline-none transition-colors duration-200 focus:border-brand focus:ring-2 focus:ring-brand/20 sm:w-56"
               />
             </label>
 
@@ -127,6 +128,7 @@ export function TransactionsPage() {
         }
       />
 
+     
       {/* Spending analysis strip — derived from the live summary endpoint */}
       <SpendingAnalysis summary={summary.data} loading={summary.loading} />
       {(from || to) && (
@@ -189,7 +191,7 @@ export function TransactionsPage() {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5 text-xs text-ink/60">
                           {transaction.account.institution}
-                          <Badge tone={transaction.account.source === 'plaid_bank' ? 'lake' : transaction.account.source === 'momo_csv' ? 'maize' : 'neutral'}>
+                          <Badge tone={transaction.account.source === 'plaid_bank' ? 'brand' : transaction.account.source === 'momo_csv' ? 'maize' : 'neutral'}>
                             {SOURCE_LABELS[transaction.account.source]}
                           </Badge>
                         </div>
@@ -250,7 +252,7 @@ export function TransactionsPage() {
                 <button
                   onClick={() => setPage((value) => Math.max(1, value - 1))}
                   disabled={safePage <= 1}
-                  className="rounded-full border border-ink/15 bg-white p-2 text-ink/60 outline-none transition-colors duration-200 hover:border-ink/30 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake disabled:pointer-events-none disabled:opacity-40"
+                  className="rounded-full border border-ink/15 bg-white p-2 text-ink/60 outline-none transition-colors duration-200 hover:border-ink/30 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand/20 disabled:pointer-events-none disabled:opacity-40"
                   aria-label="Previous page"
                 >
                   <ChevronLeft size={16} />
@@ -261,7 +263,7 @@ export function TransactionsPage() {
                 <button
                   onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
                   disabled={safePage >= pageCount}
-                  className="rounded-full border border-ink/15 bg-white p-2 text-ink/60 outline-none transition-colors duration-200 hover:border-ink/30 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake disabled:pointer-events-none disabled:opacity-40"
+                  className="rounded-full border border-ink/15 bg-white p-2 text-ink/60 outline-none transition-colors duration-200 hover:border-ink/30 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand/20 disabled:pointer-events-none disabled:opacity-40"
                   aria-label="Next page"
                 >
                   <ChevronRight size={16} />
@@ -340,7 +342,7 @@ function SpendingAnalysis({ summary, loading }: { summary: Summary | null; loadi
       <div className="card-shell animate-fade-up" style={{ animationDelay: '80ms' }}>
         <div className="card-inner flex flex-col gap-2 p-5">
           <div className="flex items-center gap-2">
-            <Wallet size={16} aria-hidden="true" className="text-lake" />
+            <Wallet size={16} aria-hidden="true" className="text-brand" />
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-ink/45">
               Top categories
             </p>
@@ -356,7 +358,7 @@ function SpendingAnalysis({ summary, loading }: { summary: Summary | null; loadi
                   </span>
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10">
                     <div
-                      className="h-full rounded-full bg-lake"
+                      className="h-full rounded-full bg-brand"
                       style={{
                         width: `${Math.max(4, Math.round((Number(amount) / Number(stats.max)) * 100))}%`,
                       }}
@@ -383,9 +385,9 @@ function CategorySelect(props: { value: string; onChange: (category: Transaction
       value={props.value}
       onChange={(event) => props.onChange(event.target.value as TransactionCategory)}
       aria-label="Transaction category"
-      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-lake ${
-        meta.badge === 'lake'
-          ? 'border-lake/25 bg-lake/10 text-lake'
+      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-brand/20 ${
+        meta.badge === 'brand'
+          ? 'border-brand/25 bg-brand/10 text-brand'
           : meta.badge === 'palm'
             ? 'border-palm/25 bg-palm/10 text-palm'
             : meta.badge === 'maize'

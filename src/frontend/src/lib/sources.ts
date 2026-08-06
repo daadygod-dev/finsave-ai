@@ -10,8 +10,8 @@ export const SOURCE_LABELS: Record<AccountSource, string> = {
   momo_csv: 'MoMo CSV',
 }
 
-export const SOURCE_BADGES: Record<AccountSource, 'neutral' | 'palm' | 'lake' | 'maize' | 'brick'> = {
-  plaid_bank: 'lake',
+export const SOURCE_BADGES: Record<AccountSource, 'neutral' | 'palm' | 'brand' | 'maize' | 'brick'> = {
+  plaid_bank: 'brand',
   bank_csv: 'neutral',
   momo_csv: 'maize',
 }

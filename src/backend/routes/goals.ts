@@ -74,6 +74,16 @@ export async function registerGoalRoutes(app: FastifyInstance) {
         prisma.savingsGoal.findMany({
           where: { userId },
           orderBy: { targetDate: 'asc' },
+          select: {
+            id: true,
+            name: true,
+            targetMinor: true,
+            savedMinor: true,
+            currency: true,
+            targetDate: true,
+            createdAt: true,
+            updatedAt: true,
+          },
         }),
         estimateMonthlySurplus(userId),
       ])

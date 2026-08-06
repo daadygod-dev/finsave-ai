@@ -16,6 +16,7 @@ import { ResetPasswordPage } from '../pages/ResetPasswordPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { SignUpPage } from '../pages/SignUpPage'
 import { TransactionsPage } from '../pages/TransactionsPage'
+import { AiInsightsPage, AlertsPage, BudgetsPage, HelpSupportPage, LoanPoolPage, ReportsPage, SavingsPage, SpendingPage } from '../pages/FeaturePages'
 
 /**
  * Deny-by-default route gate (AGENTS.md §6): renders the authenticated app
@@ -59,10 +60,18 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'accounts', element: <AccountsPage /> },
       { path: 'transactions', element: <TransactionsPage /> },
+      { path: 'spending', element: <SpendingPage /> },
+      { path: 'budgets', element: <BudgetsPage /> },
       { path: 'goals', element: <GoalsPage /> },
+      { path: 'savings', element: <SavingsPage /> },
+      { path: 'ai-insights', element: <AiInsightsPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'alerts', element: <AlertsPage /> },
       { path: 'credit-score', element: <CreditScorePage /> },
+      { path: 'loan-pool', element: <LoanPoolPage /> },
       { path: 'insurance', element: <InsurancePage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'help-support', element: <HelpSupportPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

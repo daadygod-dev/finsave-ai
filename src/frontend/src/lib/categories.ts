@@ -20,14 +20,14 @@ export type CategoryMeta = {
   /** Tailwind dot color for inline lists. */
   dot: string
   /** Badge tone for chips (see components/ui/Badge.tsx). */
-  badge: 'neutral' | 'palm' | 'lake' | 'maize' | 'brick'
+  badge: 'neutral' | 'palm' | 'brand' | 'maize' | 'brick'
 }
 
 export const CATEGORY_META: Record<TransactionCategory, CategoryMeta> = {
-  food: { label: 'Food & market', dot: 'bg-lake', badge: 'lake' },
+  food: { label: 'Food & market', dot: 'bg-brand', badge: 'brand' },
   transport: { label: 'Transport', dot: 'bg-palm', badge: 'palm' },
   mobile_money: { label: 'Mobile money', dot: 'bg-maize', badge: 'maize' },
-  utilities: { label: 'Utilities', dot: 'bg-lake/60', badge: 'lake' },
+  utilities: { label: 'Utilities', dot: 'bg-brand/60', badge: 'brand' },
   rent: { label: 'Rent', dot: 'bg-brick', badge: 'brick' },
   income: { label: 'Income', dot: 'bg-palm', badge: 'palm' },
   uncategorized: { label: 'Uncategorized', dot: 'bg-ink/30', badge: 'neutral' },

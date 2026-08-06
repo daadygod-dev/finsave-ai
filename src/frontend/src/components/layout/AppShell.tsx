@@ -3,6 +3,12 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { cx } from '../../lib/cx'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import { OnboardingDrawer } from '../onboarding/OnboardingDrawer'
+import { useAuth } from '../../context/AuthContext'
+import { api } from '../../api/endpoints'
+import { PageLoader } from '../ui/PageLoader'
+import { ErrorState } from '../ui/ErrorState'
+import { Card } from '../ui/Card'
 
 /** Sidebar footprint: expanded 264px, collapsed 76px — flush left, no margin. */
 const SIDEBAR_EXPANDED_OFFSET = 'lg:pl-[264px]'
@@ -14,14 +20,36 @@ const SIDEBAR_COLLAPSED_OFFSET = 'lg:pl-[76px]'
  * in the outlet.
  */
 export function AppShell() {
+  const { user, completeOnboarding } = useAuth()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [provisioning, setProvisioning] = useState(true)
+  const [provisionError, setProvisionError] = useState(false)
   const location = useLocation()
 
   // Close the mobile drawer whenever the route changes.
   useEffect(() => {
     setDrawerOpen(false)
   }, [location.pathname])
+
+  // The route is identity-gated and idempotent. This repairs any account
+  // confirmed before the email callback had a chance to create its Prisma row.
+  useEffect(() => {
+    let active = true
+    if (!user) return
+    setProvisioning(true)
+    setProvisionError(false)
+    api.auth.register()
+      .catch(() => { if (active) setProvisionError(true) })
+      .finally(() => { if (active) setProvisioning(false) })
+    return () => { active = false }
+  }, [user?.id])
+
+  if (provisioning) return <PageLoader label="Preparing your FinSave workspace" />
+
+  if (provisionError) {
+    return <main className="min-h-screen bg-ledger p-6"><div className="mx-auto max-w-lg pt-24"><Card><ErrorState title="Workspace setup unavailable" message="We could not prepare your FinSave profile. Check your connection and try again." onRetry={() => window.location.reload()} /></Card></div></main>
+  }
 
   return (
     <div className="min-h-screen bg-ledger text-ink">
@@ -51,10 +79,11 @@ export function AppShell() {
         )}
       >
         <Topbar onMenu={() => setDrawerOpen(true)} />
-        <main className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <Outlet />
         </main>
       </div>
+      {user && !user.onboardingComplete && <OnboardingDrawer onComplete={completeOnboarding} />}
     </div>
   )
 }

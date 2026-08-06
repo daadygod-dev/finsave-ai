@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from 'react'
 import { cx } from '../../lib/cx'
 
-type BadgeTone = 'neutral' | 'palm' | 'lake' | 'maize' | 'brick'
+type BadgeTone = 'neutral' | 'palm' | 'brand' | 'maize' | 'brick'
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   tone?: BadgeTone
@@ -10,7 +10,7 @@ type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 const TONES: Record<BadgeTone, string> = {
   neutral: 'border-ink/10 bg-ink/5 text-ink/60',
   palm: 'border-palm/25 bg-palm/10 text-palm',
-  lake: 'border-lake/25 bg-lake/10 text-lake',
+  brand: 'border-brand/25 bg-brand/10 text-brand',
   maize: 'border-maize/40 bg-maize/15 text-ink/80',
   brick: 'border-brick/25 bg-brick/10 text-brick',
 }

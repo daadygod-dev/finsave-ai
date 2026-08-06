@@ -60,7 +60,7 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
               institution: metadata.institution?.name ?? 'Linked bank',
             })
             await api.plaid.syncTransactions(account.id)
-            toast.success('Bank connected', `${account.institution} is linked and synced.`)
+            toast.success('Bank connected', `${account.institution} is linked; its initial sync is running in the background.`)
             reset()
             onConnected()
           } catch (exchangeError) {
@@ -110,12 +110,12 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
     setSubmitting(true)
 
     try {
-      const result = await api.uploadCsv({
+      await api.uploadCsv({
         source,
         institution: institution.trim(),
         csv: fileText,
       })
-      toast.success('Statement imported', `${result.imported} transactions added.`)
+      toast.success('Import started', 'Your statement is being processed in the background.')
       reset()
       onConnected()
     } catch (uploadError) {
@@ -130,16 +130,16 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
   }
 
   return (
-    <Modal open={open} onClose={handleClose} label="Connect an account" wide>
-      <div className="mb-5 flex items-start justify-between gap-4">
+    <Modal open={open} onClose={handleClose} label="Connect an account" fullPage={false}>
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             Connect an account
           </p>
-          <h2 className="mt-1 text-xl font-semibold">
+          <h2 className="mt-1 text-xl font-bold tracking-tight text-neutral-900">
             {mode === 'plaid' ? 'Link your bank' : 'Upload a statement'}
           </h2>
-          <p className="mt-1 text-sm text-ink/60">
+          <p className="mt-1 text-sm text-neutral-500">
             {mode === 'plaid'
               ? 'Securely link a bank through Plaid to import real transactions.'
               : 'Secondary option — for mobile money (MTN MoMo, Airtel Money) or bank statements.'}
@@ -147,136 +147,150 @@ export function ConnectModal({ open, onClose, onConnected }: ConnectModalProps) 
         </div>
         <button
           onClick={handleClose}
-          className="rounded-full p-2 text-ink/50 outline-none transition-colors duration-300 hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
+          className="rounded-full p-2 text-neutral-400 outline-none transition-colors duration-200 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:ring-2 focus-visible:ring-brand/20"
           aria-label="Close"
         >
           <X size={18} />
         </button>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => setMode('plaid')}
-            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
+            className={`flex items-center justify-center gap-2 rounded-xl border p-3.5 text-sm font-semibold outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand/20 ${
               mode === 'plaid'
-                ? 'border-brand/60 bg-brand/[0.05] text-ink'
-                : 'border-ink/10 text-ink/60 hover:border-ink/25'
+                ? 'border-brand bg-brand/[0.06] text-brand'
+                : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'
             }`}
           >
-            <Landmark size={18} aria-hidden="true" className="text-brand" />
+            <Landmark size={18} aria-hidden="true" className={mode === 'plaid' ? 'text-brand' : 'text-neutral-400'} />
             Bank Connection
           </button>
           <button
             onClick={() => setMode('csv')}
-            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
+            className={`flex items-center justify-center gap-2 rounded-xl border p-3.5 text-sm font-semibold outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand/20 ${
               mode === 'csv'
-                ? 'border-brand/60 bg-brand/[0.05] text-ink'
-                : 'border-ink/10 text-ink/60 hover:border-ink/25'
+                ? 'border-brand bg-brand/[0.06] text-brand'
+                : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'
             }`}
           >
-            <Upload size={18} aria-hidden="true" className="text-brand" />
+            <Upload size={18} aria-hidden="true" className={mode === 'csv' ? 'text-brand' : 'text-neutral-400'} />
             Upload statement
           </button>
         </div>
 
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 font-medium">
+            {error}
+          </div>
+        )}
+
         {mode === 'plaid' ? (
-          <div className="flex flex-col gap-3 rounded-xl border border-dashed border-ink/25 bg-ledger px-4 py-8 text-center">
-            <p className="mx-auto max-w-sm text-sm text-ink/60">
-              You'll be taken to Bank List to choose your bank and author
-              ize read-only access to
+          <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-neutral-300 bg-neutral-50/50 px-6 py-10 text-center">
+            <p className="mx-auto max-w-sm text-sm text-neutral-500 leading-relaxed">
+              You'll be taken to Bank List to choose your bank and authorize read-only access to
               your transactions. The connection is encrypted and stored securely.
             </p>
-            <div className="mx-auto mt-1">
-              <Button onClick={connectBank} loading={connecting} size="lg">
+            <div className="mx-auto mt-2 w-full max-w-xs">
+              <Button 
+                onClick={connectBank} 
+                loading={connecting} 
+                size="lg" 
+                className="w-full bg-brand hover:bg-brand-bright text-white shadow-sm transition-all rounded-xl"
+              >
                 {connecting ? 'Connecting…' : 'Connect a bank'}
               </Button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <div>
-              <p className="mb-1.5 text-sm font-medium text-ink/70">Statement type</p>
-              <div className="grid grid-cols-2 gap-2">
+              <p className="mb-2 text-sm font-semibold text-neutral-700">Statement type</p>
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => {
                     setSource('momo_csv')
                     setInstitution('MTN MoMo')
                   }}
-                  className={`rounded-xl border p-3 text-left text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
+                  className={`rounded-xl border p-4 text-left text-sm font-semibold outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand/20 ${
                     source === 'momo_csv'
-                      ? 'border-brand/60 bg-brand/[0.05] text-ink'
-                      : 'border-ink/10 text-ink/60 hover:border-ink/25'
+                      ? 'border-brand bg-brand/[0.06] text-brand'
+                      : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'
                   }`}
                 >
-                  <Smartphone size={18} aria-hidden="true" className="mb-1 text-brand" />
-                  Mobile money
+                  <Smartphone size={20} aria-hidden="true" className={`mb-2 ${source === 'momo_csv' ? 'text-brand' : 'text-neutral-400'}`} />
+                  <span className="block font-bold text-neutral-900">Mobile money</span>
+                  <span className="block text-xs font-normal text-neutral-400 mt-0.5">MTN, Airtel Money</span>
                 </button>
                 <button
                   onClick={() => {
                     setSource('bank_csv')
                     setInstitution('Bank of Kigali')
                   }}
-                  className={`rounded-xl border p-3 text-left text-sm font-medium outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand ${
+                  className={`rounded-xl border p-4 text-left text-sm font-semibold outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand/20 ${
                     source === 'bank_csv'
-                      ? 'border-brand/60 bg-brand/[0.05] text-ink'
-                      : 'border-ink/10 text-ink/60 hover:border-ink/25'
+                      ? 'border-brand bg-brand/[0.06] text-brand'
+                      : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'
                   }`}
                 >
-                  <Landmark size={18} aria-hidden="true" className="mb-1 text-brand" />
-                  Bank statement
+                  <Landmark size={20} aria-hidden="true" className={`mb-2 ${source === 'bank_csv' ? 'text-brand' : 'text-neutral-400'}`} />
+                  <span className="block font-bold text-neutral-900">Bank Statement</span>
+                  <span className="block text-xs font-normal text-neutral-400 mt-0.5">CSV export sheets</span>
                 </button>
               </div>
             </div>
 
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-ink/70">Institution name</span>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="institution-input" className="text-sm font-semibold text-neutral-700">
+                Institution name
+              </label>
               <input
+                id="institution-input"
+                type="text"
                 value={institution}
-                onChange={(event) => setInstitution(event.target.value)}
-                className="rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition-colors duration-300 focus:border-brand/50 focus:ring-2 focus:ring-brand/25"
-                placeholder="e.g. MTN MoMo"
-              />
-            </label>
-
-            <div>
-              <p className="mb-1.5 text-sm font-medium text-ink/70">CSV file</p>
-              <p className="mb-2 text-xs text-ink/45">
-                Expected columns: <span className="font-medium text-ink/60">date</span>,{' '}
-                <span className="font-medium text-ink/60">merchant</span>,{' '}
-                <span className="font-medium text-ink/60">amount</span> — a reference column is
-                optional. DD/MM/YYYY or ISO dates are both accepted.
-              </p>
-              <button
-                onClick={() => document.getElementById('csv-file-input')?.click()}
-                className="flex w-full flex-col items-center gap-2 rounded-xl border border-dashed border-ink/25 bg-ledger px-4 py-8 text-sm text-ink/60 outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-brand hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
-              >
-                <Upload size={22} aria-hidden="true" className="text-brand" />
-                {fileName ? (
-                  <span className="font-medium text-ink">{fileName}</span>
-                ) : (
-                  <span>Choose a .csv statement file</span>
-                )}
-              </button>
-              <input
-                id="csv-file-input"
-                type="file"
-                accept=".csv,text/csv"
-                className="sr-only"
-                onChange={(event) => onFile(event.target.files?.[0])}
+                onChange={(e) => setInstitution(e.target.value)}
+                placeholder="e.g. MTN MoMo, Bank of Kigali"
+                className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-neutral-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
               />
             </div>
 
-            <Button onClick={submitCsv} loading={submitting} size="lg">
-              {submitting ? 'Importing…' : 'Import statement'}
-            </Button>
-          </div>
-        )}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-neutral-700">Statement file (CSV)</span>
+              <label className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 text-center cursor-pointer transition-colors hover:bg-neutral-50 group">
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="sr-only"
+                  onChange={(e) => onFile(e.target.files?.[0])}
+                />
+                <Upload size={24} className="text-neutral-400 group-hover:text-neutral-500 transition-colors" />
+                <span className="text-sm font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors">
+                  {fileName ? fileName : 'Choose a file to upload'}
+                </span>
+                <span className="text-xs text-neutral-400">Drag and drop or browse local storage</span>
+              </label>
+            </div>
 
-        {error && (
-          <p className="rounded-lg border border-brick/30 bg-brick/5 px-3 py-2 text-sm text-brick">
-            {error}
-          </p>
+            <div className="mt-4 flex justify-end gap-3">
+              <Button 
+                
+                onClick={handleClose} 
+                disabled={submitting}
+                className="rounded-xl border border-neutral-200 font-semibold px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-all"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={submitCsv}
+                loading={submitting}
+                disabled={!fileText || !institution.trim()}
+                className="bg-brand hover:bg-brand-bright text-white shadow-sm font-semibold rounded-xl px-5 py-2"
+              >
+                {submitting ? 'Uploading…' : 'Import statement'}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </Modal>

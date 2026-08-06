@@ -82,7 +82,7 @@ export function SignUpPage() {
     return (
       <AuthLayout>
         <div className="card-shell">
-          <div className="card-inner flex flex-col items-center gap-3 p-6 text-center sm:p-8">
+          <div className="card flex flex-col items-center gap-3 p-6 text-center sm:p-8">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10">
               <MailCheck size={24} aria-hidden="true" className="text-brand" />
             </span>
@@ -94,7 +94,7 @@ export function SignUpPage() {
             <p className="text-xs text-ink/45">Didn't get it? Check spam, or try signing up again.</p>
             <Link
               to="/login"
-              className="mt-2 text-sm font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand"
+              className="mt-2 text-sm font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-brand-deep focus-visible:ring-2 focus-visible:ring-brand"
             >
               Back to sign in
             </Link>
@@ -107,7 +107,7 @@ export function SignUpPage() {
   return (
     <AuthLayout>
       <form onSubmit={submit} className="card-shell">
-        <div className="card-inner p-6 sm:p-8">
+        <div className="card p-6 sm:p-8">
           <h2 className="text-lg font-semibold tracking-tight">Create your account</h2>
           <p className="mt-1 text-sm leading-relaxed text-ink/55">
             Sign up to track spending, savings goals, and your credit standing.
@@ -208,7 +208,7 @@ export function SignUpPage() {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand"
+                className="font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-brand-deep focus-visible:ring-2 focus-visible:ring-brand"
               >
                 Sign in
               </Link>

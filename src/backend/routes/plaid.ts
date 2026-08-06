@@ -9,6 +9,7 @@ import {
 } from '../plaid/client'
 import { syncLinkedAccount } from '../plaid/sync'
 import { decryptSecret, encryptSecret, getTokenEncryptionKey } from '../plaid/tokenCipher'
+import { enqueueBackgroundTask } from '../ingestion/background'
 
 const exchangeSchema = z.object({
   public_token: z.string().min(1),
@@ -33,7 +34,7 @@ export async function registerPlaidRoutes(app: FastifyInstance) {
       preHandler: app.authenticateConsumer,
       config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
     },
-    async (request) => {
+    async (request, reply) => {
       const config = getPlaidConfig()
 
       if (!config) {
@@ -93,8 +94,22 @@ export async function registerPlaidRoutes(app: FastifyInstance) {
     {
       preHandler: app.authenticateConsumer,
       config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+      schema: {
+        response: {
+          202: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['accepted', 'jobId', 'accountId'],
+            properties: {
+              accepted: { type: 'boolean' },
+              jobId: { type: 'string', format: 'uuid' },
+              accountId: { type: 'string', format: 'uuid' },
+            },
+          },
+        },
+      },
     },
-    async (request) => {
+    async (request, reply) => {
       const userId = request.user!.id
       const body = syncSchema.parse(request.body)
 
@@ -108,7 +123,11 @@ export async function registerPlaidRoutes(app: FastifyInstance) {
         throw Object.assign(new Error('account_not_found'), { statusCode: 404 })
       }
 
-      return syncLinkedAccount(account.id)
+      const jobId = enqueueBackgroundTask(`plaid-sync:${account.id}`, async () => {
+        await syncLinkedAccount(account.id)
+      })
+
+      return reply.status(202).send({ accepted: true, jobId, accountId: account.id })
     },
   )
 }

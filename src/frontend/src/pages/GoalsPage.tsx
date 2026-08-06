@@ -178,7 +178,7 @@ export function GoalsPage() {
                   </div>
 
                   <div>
-                    <ProgressBar value={progress} tone={progress >= 100 ? 'palm' : 'lake'} />
+                    <ProgressBar value={progress} tone={progress >= 100 ? 'palm' : 'brand'} />
                     <div className="mt-2.5 flex items-baseline justify-between gap-3">
                       <p className="font-mono text-sm font-semibold tabular text-ink">
                         {formatRwf(goal.savedMinor)}

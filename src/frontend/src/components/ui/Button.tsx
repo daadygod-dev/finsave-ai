@@ -13,8 +13,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-[#465c7a] text-[#f7f7ff] shadow-[0_4px_12px_-8px_rgba(17,23,30,0.75)] hover:bg-[#34455b]',
-  secondary: 'border border-ink/15 bg-white text-ink/80 hover:border-ink/30 hover:text-ink',
+  primary: 'bg-brand text-white shadow-[0_8px_20px_rgba(112,201,94,0.2)] hover:bg-brand-deep',
+  secondary: 'border border-[#e1e5ee] bg-white text-ink/80 hover:border-brand/30 hover:text-ink',
   ghost: 'text-ink/60 hover:bg-ink/5 hover:text-ink',
   danger: 'bg-brick text-white hover:bg-brick/90',
 }
@@ -29,7 +29,7 @@ export function Button({ variant = 'primary', size = 'md', className, loading = 
   return (
     <button
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-full font-semibold outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60',
+        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60',
         VARIANTS[variant],
         SIZES[size],
         className,

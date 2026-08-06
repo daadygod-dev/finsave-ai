@@ -89,6 +89,7 @@ export async function registerCreditScoreRoutes(app: FastifyInstance) {
       const latest = await prisma.creditScore.findFirst({
         where: { businessId: userId },
         orderBy: { computedAt: 'desc' },
+        select: { score: true, factorsJson: true, computedAt: true },
       })
 
       if (!latest) {

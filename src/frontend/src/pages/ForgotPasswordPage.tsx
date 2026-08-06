@@ -52,7 +52,7 @@ export function ForgotPasswordPage() {
             </p>
             <Link
               to="/login"
-              className="mt-2 text-sm font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand"
+              className="mt-2 text-sm font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-brand-deep focus-visible:ring-2 focus-visible:ring-brand"
             >
               Back to sign in
             </Link>
@@ -109,7 +109,7 @@ export function ForgotPasswordPage() {
               Remembered it?{' '}
               <Link
                 to="/login"
-                className="font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-[#5a48e8] focus-visible:ring-2 focus-visible:ring-brand"
+                className="font-medium text-brand outline-none rounded transition-colors duration-200 hover:text-brand-deep focus-visible:ring-2 focus-visible:ring-brand"
               >
                 Sign in
               </Link>

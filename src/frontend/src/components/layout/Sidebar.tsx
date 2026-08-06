@@ -8,7 +8,6 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
-  Sprout,
   Target,
   Umbrella,
   type LucideIcon,
@@ -16,30 +15,38 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { cx } from '../../lib/cx'
 import { displayName } from '../../lib/userProfile'
+import { FinSaveLogo } from '../brand/FinSaveLogo'
 
 const NAV_GROUPS: Array<{
   label: string
   items: Array<{ to: string; label: string; icon: LucideIcon; badge?: string }>
 }> = [
   {
-    label: 'Main',
+    label: 'Overview',
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
       { to: '/accounts', label: 'Accounts', icon: Landmark },
-      { to: '/goals', label: 'Savings', icon: Target },
+      { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
     ],
   },
   {
     label: 'Insights',
     items: [
-      { to: '/credit-score', label: 'Credit score', icon: ShieldCheck },
+      { to: '/goals', label: 'Goals', icon: Target },
+    ],
+  },
+  {
+    label: 'Credit & Insurance',
+    items: [
+      { to: '/credit-score', label: 'Credit Score', icon: ShieldCheck },
       { to: '/insurance', label: 'Insurance', icon: Umbrella },
     ],
   },
   {
     label: 'Settings',
-    items: [{ to: '/settings', label: 'Settings', icon: Settings }],
+    items: [
+      { to: '/settings', label: 'Settings', icon: Settings },
+    ],
   },
 ]
 
@@ -83,7 +90,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
   return (
     <div
       className={cx(
-        'flex h-full flex-col overflow-hidden border-r border-[#2c363f] bg-[#1e242a]',
+        'flex h-full flex-col overflow-hidden border-r border-white/[0.07] bg-[#101827]',
         'transition-[width] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]',
         collapsed ? 'w-[76px]' : 'w-[264px]',
         className,
@@ -92,26 +99,24 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
       {/* Brand */}
       <div
         className={cx(
-          'flex shrink-0 items-center py-6',
+          'flex shrink-0 items-center py-7',
           collapsed ? 'justify-center' : 'gap-2.5 px-5',
         )}
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
-          <Sprout size={18} aria-hidden="true" />
-        </span>
+        <FinSaveLogo className="shrink-0" />
         <div
           className={cx(
             'min-w-0 overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]',
             collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100',
           )}
         >
-          <p className="truncate text-sm font-semibold tracking-tight text-white">FinSave AI</p>
+          <p className="truncate text-lg font-semibold tracking-[-0.03em] text-white">FinSave AI</p>
           <p className="text-[11px] text-slate-400">MSME money coach</p>
         </div>
       </div>
 
       {/* Divider between branding and navigation */}
-      <div className="mx-5 shrink-0 border-t border-[#3b4754]" />
+      <div className="mx-5 shrink-0 border-t border-white/[0.08]" />
 
       {/* Navigation — the only scrollable region */}
       <nav
@@ -122,7 +127,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
           <div key={group.label} className="flex flex-col">
             <p
               className={cx(
-                'px-4 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 first:pt-0',
+                'px-3 pb-2 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 first:pt-0',
                 collapsed && 'hidden',
               )}
             >
@@ -137,38 +142,30 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
                     aria-label={collapsed ? item.label : undefined}
                     className={({ isActive }) =>
                       cx(
-                        'group relative flex items-center rounded-xl py-3 text-sm font-medium outline-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]',
+                        'group relative flex items-center rounded-xl py-2.5 text-sm font-medium outline-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#101827]',
                         collapsed ? 'justify-center' : 'pl-4 pr-3',
                         isActive
-                          ? 'bg-brand-deep font-semibold text-white shadow-[0_8px_20px_-12px_rgba(70,92,122,0.72)]'
-                          : 'text-slate-200 hover:-translate-y-px hover:bg-[#3b4754] hover:text-white',
+                          ? 'bg-brand font-semibold text-white shadow-[0_8px_22px_rgba(112,201,94,0.28)]'
+                          : 'text-slate-300 hover:bg-white/[0.08] hover:text-white',
                       )
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        {/* Thin active indicator on the left edge */}
-                        <span
-                          aria-hidden="true"
-                          className={cx(
-                            'absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#bdd5ea] transition-opacity duration-200',
-                            isActive ? 'opacity-100' : 'opacity-0',
-                          )}
-                        />
                         <item.icon
                           size={20}
                           strokeWidth={1.75}
                           aria-hidden="true"
                           className={cx(
                             'shrink-0 transition-colors duration-200',
-                            isActive ? 'text-white' : 'text-slate-300 group-hover:text-white',
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-white',
                           )}
                         />
                         {label(item.label)}
                         {item.badge && (
                           <span
                             className={cx(
-                              'ml-auto rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-white shadow-[0_2px_6px_-1px_rgba(109,93,246,0.6)]',
+                              'ml-auto rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-white shadow-[0_2px_6px_-1px_rgba(112,201,94,0.6)]',
                               collapsed && 'hidden',
                             )}
                           >
@@ -186,11 +183,11 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
       </nav>
 
       {/* Session footer — stays fixed while navigation scrolls */}
-      <div className="shrink-0 border-t border-[#3b4754] p-3">
+      <div className="shrink-0 border-t border-white/[0.08] p-3">
         {/* Bottom user card — separate solid darker surface, fully opaque */}
         <div
           className={cx(
-            'rounded-xl border border-[#3b4754] bg-[#11171e]',
+            'rounded-xl border border-white/[0.08] bg-black/10',
             collapsed ? 'p-1.5' : 'p-2',
           )}
         >
@@ -200,7 +197,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
             title={collapsed ? 'Settings' : undefined}
             aria-label={collapsed ? 'Settings' : undefined}
             className={cx(
-              'flex min-w-0 flex-1 items-center rounded-2xl p-2 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#34455b] focus-visible:ring-2 focus-visible:ring-brand',
+              'flex min-w-0 flex-1 items-center rounded-2xl p-2 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-brand',
               collapsed && 'flex-col',
             )}
           >
@@ -220,7 +217,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
 
           <button
             onClick={() => void signOut()}
-            className="shrink-0 rounded-full p-2 text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#3b4754] hover:text-brick focus-visible:ring-2 focus-visible:ring-brand"
+            className="shrink-0 rounded-full p-2 text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.08] hover:text-brick focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Sign out"
             title="Sign out"
           >
@@ -233,7 +230,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
           <button
             onClick={onToggleCollapse}
             className={cx(
-              'mt-2 flex w-full items-center rounded-xl border border-[#3b4754] bg-[#1e242a] py-2 text-xs font-medium text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#3b4754] hover:text-white focus-visible:ring-2 focus-visible:ring-brand',
+              'mt-2 flex w-full items-center rounded-xl border border-white/[0.08] bg-white/[0.03] py-2 text-xs font-medium text-slate-300 outline-none transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/[0.08] hover:text-white focus-visible:ring-2 focus-visible:ring-brand',
               collapsed ? 'justify-center' : 'px-3',
             )}
             aria-expanded={!collapsed}

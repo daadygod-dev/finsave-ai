@@ -4,6 +4,7 @@ import Fastify from 'fastify'
 import { ZodError } from 'zod'
 import { authenticateConsumer } from './auth/consumer'
 import { registerAccountRoutes } from './routes/accounts'
+import { registerAlertRoutes } from './routes/alerts'
 import { registerAuthRoutes } from './routes/auth'
 import { registerCoachRoutes } from './routes/coach'
 import { registerCreditScoreRoutes } from './routes/creditScore'
@@ -63,6 +64,7 @@ export async function buildApp() {
   await registerAccountRoutes(app)
   await registerCsvUploadRoutes(app)
   await registerTransactionRoutes(app)
+  await registerAlertRoutes(app)
   await registerPlaidRoutes(app)
   await registerGoalRoutes(app)
   await registerCreditScoreRoutes(app)

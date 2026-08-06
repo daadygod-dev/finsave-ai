@@ -17,6 +17,8 @@ export type SyncResult = {
   skipped: number
 }
 
+const INSERT_CHUNK_SIZE = 500
+
 export async function syncLinkedAccount(accountId: string): Promise<SyncResult> {
   const account = await prisma.account.findUnique({
     where: { id: accountId },
@@ -48,8 +50,7 @@ export async function syncLinkedAccount(accountId: string): Promise<SyncResult> 
     })),
   )
 
-  const created = await prisma.transaction.createMany({
-    data: sync.added.map((transaction, index) => ({
+  const entries = sync.added.map((transaction, index) => ({
       accountId: account.id,
       externalId: transaction.transaction_id,
       merchantName: transaction.name,
@@ -57,9 +58,16 @@ export async function syncLinkedAccount(accountId: string): Promise<SyncResult> 
       category: categorized[index].category,
       occurredAt: new Date(`${transaction.date}T00:00:00.000Z`),
       rawDescription: transaction.pending ? `pending: ${transaction.name}` : transaction.name,
-    })),
-    skipDuplicates: true,
-  })
+    }))
+
+  let imported = 0
+  for (const chunk of chunkEntries(entries)) {
+    const created = await prisma.transaction.createMany({
+      data: chunk,
+      skipDuplicates: true,
+    })
+    imported += created.count
+  }
 
   await prisma.account.update({
     where: { id: account.id },
@@ -67,10 +75,18 @@ export async function syncLinkedAccount(accountId: string): Promise<SyncResult> 
   })
 
   return {
-    imported: created.count,
+    imported,
     cursor: sync.next_cursor,
     skipped: sync.modified.length + sync.removed.length,
   }
+}
+
+function chunkEntries<T>(entries: T[]): T[][] {
+  const chunks: T[][] = []
+  for (let offset = 0; offset < entries.length; offset += INSERT_CHUNK_SIZE) {
+    chunks.push(entries.slice(offset, offset + INSERT_CHUNK_SIZE))
+  }
+  return chunks
 }
 
 /**

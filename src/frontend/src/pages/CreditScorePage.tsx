@@ -25,7 +25,7 @@ import { formatDate } from '../lib/format'
 
 const SCORE_BANDS = [
   { label: 'Strong', min: 80, tone: 'text-palm' },
-  { label: 'Good', min: 60, tone: 'text-lake' },
+  { label: 'Good', min: 60, tone: 'text-brand' },
   { label: 'Fair', min: 40, tone: 'text-maize' },
   { label: 'Building', min: 0, tone: 'text-brick' },
 ]
@@ -242,7 +242,7 @@ function ScoreResultCard({
             {FACTOR_LABELS.map((factor) => (
               <div key={factor.key} className="flex items-center gap-3">
                 <span className="w-40 shrink-0 text-xs text-ink/55">{factor.label}</span>
-                <ProgressBar value={credit.factors[factor.key]} tone="lake" className="flex-1" />
+                <ProgressBar value={credit.factors[factor.key]} tone="brand" className="flex-1" />
                 <span className="w-8 shrink-0 text-right text-xs font-semibold text-ink/70 tabular">
                   {credit.factors[factor.key]}
                 </span>
@@ -425,7 +425,7 @@ function ComputeCard({ onComputed }: { onComputed: (result: CreditScoreResult) =
     <div className="card-shell animate-fade-up">
       <div className="card-inner p-6 sm:p-8">
         <div className="mb-5 flex items-center gap-2">
-          <Calculator size={20} aria-hidden="true" className="text-lake" />
+          <Calculator size={20} aria-hidden="true" className="text-brand" />
           <h2 className="text-lg font-semibold">Compute your score</h2>
         </div>
         <p className="mb-6 max-w-xl text-sm leading-relaxed text-ink/60">

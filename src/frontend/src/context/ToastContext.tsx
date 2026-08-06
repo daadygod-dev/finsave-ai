@@ -30,7 +30,7 @@ const ToastContext = createContext<ToastApi | null>(null)
 const KIND_STYLES: Record<ToastKind, { icon: typeof Info; iconClass: string; barClass: string }> = {
   success: { icon: CheckCircle2, iconClass: 'text-palm', barClass: 'bg-palm' },
   error: { icon: XCircle, iconClass: 'text-brick', barClass: 'bg-brick' },
-  info: { icon: Info, iconClass: 'text-lake', barClass: 'bg-lake' },
+  info: { icon: Info, iconClass: 'text-brand', barClass: 'bg-brand' },
 }
 
 const AUTO_DISMISS_MS = 4500

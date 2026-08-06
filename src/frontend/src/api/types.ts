@@ -129,10 +129,16 @@ export type CoachInsight = {
   tone: 'info' | 'success' | 'warning'
 }
 
+export type FinancialAlert = {
+  id: string
+  tone: 'warning' | 'info'
+  title: string
+  body: string
+}
+
 export type CsvUploadResult = {
-  accountId: string
-  imported: number
-  skipped: number
+  accepted: true
+  jobId: string
 }
 
 export type PlaidLinkToken = {
@@ -141,7 +147,7 @@ export type PlaidLinkToken = {
 }
 
 export type PlaidSyncResult = {
-  imported: number
-  cursor: string
-  skipped: number
+  accepted: true
+  jobId: string
+  accountId: string
 }

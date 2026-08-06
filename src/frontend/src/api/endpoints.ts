@@ -6,6 +6,7 @@ import { requestJson } from './client'
 import type {
   Account,
   CoachInsight,
+  FinancialAlert,
   CreditScoreComputed,
   CreditScoreHistoryEntry,
   CreditScoreResult,
@@ -62,6 +63,8 @@ export const api = {
     requestJson<Summary>(
       `/api/v1/spending/summary${accountId ? `?account_id=${encodeURIComponent(accountId)}` : ''}`,
     ),
+
+  alerts: () => requestJson<{ alerts: FinancialAlert[] }>('/api/v1/alerts'),
 
   uploadCsv: (body: { source: 'bank_csv' | 'momo_csv'; institution: string; csv: string }) =>
     requestJson<CsvUploadResult>('/api/v1/csv/upload', { method: 'POST', body }),

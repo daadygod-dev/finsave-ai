@@ -23,6 +23,8 @@ export type AuthUser = {
     notifications: boolean
     aiCoaching: boolean
   }
+  /** Only newly-created users begin with this false. */
+  onboardingComplete: boolean
 }
 
 export type ProfilePatch = {
@@ -45,6 +47,7 @@ type AuthContextValue = {
   verifyEmailOtp: (tokenHash: string, type: string) => Promise<void>
   /** Persist name + non-financial preferences to Supabase user_metadata. */
   updateProfile: (patch: ProfilePatch) => Promise<void>
+  completeOnboarding: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -66,6 +69,7 @@ function sessionToUser(session: Session): AuthUser {
     email: session.user.email ?? '',
     fullName: typeof name === 'string' && name.trim() ? name.trim() : undefined,
     preferences: readPreferences(metadata),
+    onboardingComplete: metadata?.onboarding_complete !== false,
   }
 }
 
@@ -135,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // The role is stored in Supabase user metadata at signup; the
         // backend reads it from the verified token when provisioning the
         // Prisma User row (never from an unauthenticated body value).
-        data: { role },
+        data: { role, onboarding_complete: false },
         emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     })
@@ -210,6 +214,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const completeOnboarding = useCallback(async () => {
+    if (!supabase) return
+    const { data, error } = await supabase.auth.updateUser({ data: { onboarding_complete: true } })
+    if (error) throw error
+    if (data.user) {
+      setUser((current) => current ? { ...current, onboardingComplete: true } : current)
+    }
+  }, [])
+
   return (
     <AuthContext.Provider
       value={{
@@ -224,6 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updatePassword,
         verifyEmailOtp,
         updateProfile,
+        completeOnboarding,
       }}
     >
       {children}

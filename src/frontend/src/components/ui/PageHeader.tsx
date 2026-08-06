@@ -11,7 +11,7 @@ type PageHeaderProps = {
 /** Consistent page-level title block reused by every feature page. */
 export function PageHeader({ eyebrow, title, description, actions }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 border-b border-[#d7e6f3] pb-6 md:flex-row md:items-end md:justify-between">
+    <header className="flex flex-col gap-4 border-b border-[#e7eaf2] pb-6 md:flex-row md:items-end md:justify-between">
       <div className="animate-fade-up">
         <Breadcrumb current={title} section={eyebrow} />
         {eyebrow && (
