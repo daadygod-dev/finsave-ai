@@ -50,7 +50,7 @@ export function CoachCard({ compact = false, title = 'AI coach', className }: Co
           </div>
           <button
             onClick={reload}
-            className="rounded-full p-2 text-ink/45 outline-none transition-colors duration-200 hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-lake"
+            className="rounded-full p-2 text-ink/45 outline-none transition-colors duration-200 hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Refresh insights"
           >
             <RefreshCw size={15} aria-hidden="true" />
