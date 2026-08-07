@@ -143,18 +143,6 @@ export function Topbar({ onMenu }: TopbarProps) {
             )}
           </div>
 
-          {/* <button
-            type="button"
-            onClick={() => setThemeHint((value) => !value)}
-            aria-label="Theme toggle shortcut"
-            title="Theme toggle shortcut"
-            className={cx(
-              'hidden rounded-full border border-[#e8ebf2] p-2.5 text-ink/60 outline-none transition-colors duration-200 hover:bg-ledger hover:text-ink focus-visible:ring-2 focus-visible:ring-brand sm:inline-flex',
-              themeHint && 'bg-ledger text-brand',
-            )}
-          >
-            {themeHint ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
-          </button> */}
 
                     {/* Profile dropdown */}
           <div className="relative">
@@ -164,7 +152,7 @@ export function Topbar({ onMenu }: TopbarProps) {
                 setProfileOpen((value) => !value)
               }}
               className={cx(
-                'flex items-center rounded-full py-1 pl-1 pr-2.5 outline-2 outline-ink transition-colors duration-200 hover:bg-ledger hover:border-ink focus-visible:ring-2 focus-visible:ring-brand sm:gap-2 sm:pl-1.5 sm:pr-3',
+                'flex items-center rounded-full py-1 pl-1 pr-1.5 outline-2 outline-ink transition-colors duration-200 hover:bg-ledger hover:border-ink focus-visible:ring-2 focus-visible:ring-brand sm:gap-2 sm:pl-1.5 sm:pr-2',
                 profileOpen && 'bg-ink/5',
               )}
               aria-haspopup="menu"
