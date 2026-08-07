@@ -13,7 +13,7 @@ import {
   Wallet,
 } from 'lucide-react'
 import { api } from '../api/endpoints'
-import type { Account, AccountSource } from '../api/types'
+import type { Account, AccountSource, UserRole } from '../api/types'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { ConnectModal } from '../components/connect/ConnectModal'
@@ -40,6 +40,7 @@ const SOURCE_ICONS: Record<AccountSource, typeof Landmark> = {
 export function SettingsPage() {
   const { user, signOut, updateProfile } = useAuth()
   const toast = useToast()
+  const [updatingRole, setUpdatingRole] = useState(false)
 
   const me = useAsync(() => api.session.me(), [])
   const accounts = useAsync(() => api.accounts(), [])
@@ -61,6 +62,25 @@ export function SettingsPage() {
       }
     },
     [accounts, toast],
+  )
+
+  const handleRoleChange = useCallback(
+    async (newRole: UserRole) => {
+      setUpdatingRole(true)
+      try {
+        await api.auth.updateRole(newRole)
+        toast.success(
+          'Account type updated',
+          `You are now registered as ${newRole.replace('_', ' ')}.`,
+        )
+        void me.reload()
+      } catch {
+        toast.error('Could not update account type', 'The backend rejected the change. Try again.')
+      } finally {
+        setUpdatingRole(false)
+      }
+    },
+    [me, toast],
   )
 
   return (
@@ -88,13 +108,29 @@ export function SettingsPage() {
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-ink/45">Email</p>
               <p className="mt-1 truncate font-semibold text-ink">{user?.email}</p>
             </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-ink/45">
-                Account type
-              </p>
-              <p className="mt-1 capitalize text-ink">
-                {me.data ? me.data.role.replace('_', ' ') : '…'}
-              </p>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-ink/45">
+                  Account type
+                </p>
+                <p className="mt-0.5 max-w-44 text-xs text-ink/55">
+                  {me.data
+                    ? me.data.role === 'msme_owner'
+                      ? 'MSME owner — unlocks credit scoring and insurance matching.'
+                      : 'Individual — personal finance tracking.'
+                    : 'Loading…'}
+                </p>
+              </div>
+              {me.data && (
+                <Toggle
+                  checked={me.data.role === 'msme_owner'}
+                  disabled={updatingRole}
+                  onChange={(checked) => {
+                    void handleRoleChange(checked ? 'msme_owner' : 'individual')
+                  }}
+                  label="Account type"
+                />
+              )}
             </div>
           </div>
 

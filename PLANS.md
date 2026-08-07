@@ -131,15 +131,15 @@ triggers the feasibility warning rather than silently accepting it.
 
 ## Phase 4 — Credit Scoring (MSME)
 
-- [ ] Weighted scoring function implemented per the factor table in the
-      build plan (cash flow consistency 30%, transaction volume 20%,
-      repayment history 25%, business age/stability 15%, savings behavior 10%)
-- [ ] Scoring function reads transactions across **all** of the business's
-      linked accounts (bank + MoMo, or multiple of either), not just one —
-      see AGENTS.md §3 on why scoring against a single account understates
-      real cash flow for most MSMEs
-- [ ] `POST /api/v1/credit-score/compute` implemented, `msme_owner`/`system`
-      only
+- [x] Data-driven scoring function implemented — aggregates income,
+      expenses, and net surplus across **all** linked accounts (bank + MoMo,
+      or multiple of either; see AGENTS.md §3), maps the combined ratios to
+      an integer score in the FICO-style [300, 850] range, and stores the
+      granular factors in `factorsJson` as
+      `{ cashFlowConsistency, transactionVolume, expenseRatio }`
+- [x] `POST /api/v1/credit-score/compute` implemented, `msme_owner`/`system`
+      only — reads the ledger via parallel `Promise.all` gather, no mock
+      inputs (business age / repayment fields removed)
 - [ ] `GET /api/v1/credit-score` implemented, returns factor breakdown
 - [ ] **Vitest suite for the scoring function** — required per AGENTS.md
       §10, not optional; include a test case with transactions split across
@@ -149,8 +149,9 @@ triggers the feasibility warning rather than silently accepting it.
 **Verification for Phase 4:** scoring function has passing unit tests
 covering at least one high-score and one low-score scenario with known
 expected output, and one scenario where a business has both a bank and a
-MoMo account, confirming both are reflected in the score; an `individual`
-role calling the compute endpoint is rejected.
+MoMo account, confirming both are reflected in the score; every score is an
+integer within [300, 850]; an `individual` role calling the compute
+endpoint is rejected.
 
 ---
 
@@ -241,6 +242,8 @@ confirmed this is secure on [date]."
 | 2026-08-03 | TypeScript project check | Pass: `npx.cmd tsc --noEmit` |
 | 2026-08-03 | Frontend production build | Pass: `npm.cmd run build`; Vite warns the initial Recharts bundle is over 500 kB |
 | 2026-08-03 | Prisma schema validation | Blocked: no project `.env` file is present, and validation must use the real `DATABASE_URL` rather than a guessed URL |
+| 2026-08-07 | Phase 4 unblock — promoted test users `alituanfamous@gmail.com` and `muvakenyadidier3@gmail.com` to `msme_owner` (Prisma + Supabase metadata); `daadygod@gmail.com` was already `msme_owner`. All three users can now hit `POST /api/v1/credit-score/compute`. | Pass: Prisma `User.role` updated, Supabase `user_metadata.role` synced, verified by `npm run role:promote -- --list` |
+| 2026-08-07 | Credit engine refactored to data-driven scoring: income/expense/surplus aggregation across all accounts, integer score in [300, 850], factors `{ cashFlowConsistency, transactionVolume, expenseRatio }` in `factorsJson`; UI (score bands, /850, 3-factor bars) and coach insight updated | Pass: `npx tsc --noEmit`, `npm test` (42 tests) |
 | 2026-08-03 | Sanitized `.env.example` | Pass: credential values removed; placeholders only |
 | 2026-08-03 | Added account, CSV upload, transaction list, and spending summary routes | Pass: `npx.cmd tsc --noEmit`; DB integration verification still blocked until real `DATABASE_URL` is available |
 | 2026-08-03 | Regression test suite after route additions | Pass: `npx.cmd vitest run` |

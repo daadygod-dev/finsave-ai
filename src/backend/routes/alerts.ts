@@ -60,7 +60,8 @@ export async function registerAlertRoutes(app: FastifyInstance) {
       }
 
       if (income > 0n && spending * 10n > income * 8n) {
-        const ratio = Number((spending * 100n) / income)
+        // Cap at 100% — spending can outrun income, but the percentage never reads above the ceiling.
+        const ratio = Math.min(100, Number((spending * 100n) / income))
         alerts.push({
           id: 'high-spending-ratio',
           tone: 'warning',

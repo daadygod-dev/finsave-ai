@@ -37,6 +37,14 @@ export const api = {
         '/api/v1/auth/register',
         { method: 'POST', body: {} },
       ),
+    /** Switch the authenticated user's role (individual ↔ msme_owner). The
+     * backend updates both Prisma and Supabase metadata so the change
+     * survives the register-upsert on the next sign-in. */
+    updateRole: (role: UserRole) =>
+      requestJson<{ role: UserRole }>('/api/v1/auth/role', {
+        method: 'PATCH',
+        body: { role },
+      }),
   },
 
   session: {
@@ -105,14 +113,12 @@ export const api = {
     get: () => requestJson<CreditScoreResult>('/api/v1/credit-score'),
     history: () =>
       requestJson<{ history: CreditScoreHistoryEntry[] }>('/api/v1/credit-score/history'),
-    compute: (body?: {
-      business_age_months?: number
-      on_time_repayments?: number
-      total_repayments?: number
-    }) =>
+    /** Compute is purely data-driven — the backend derives everything from
+     * the business's linked transaction history. */
+    compute: () =>
       requestJson<CreditScoreComputed>('/api/v1/credit-score/compute', {
         method: 'POST',
-        body: body ?? {},
+        body: {},
       }),
   },
 

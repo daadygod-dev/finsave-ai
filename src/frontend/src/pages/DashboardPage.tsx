@@ -12,6 +12,7 @@ import {
   RotateCw,
   ShieldCheck,
   Smartphone,
+  ExternalLink
 } from 'lucide-react'
 import {
   Cell,
@@ -36,6 +37,7 @@ import { ConnectModal } from '../components/connect/ConnectModal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { Modal } from '../components/ui/Modal'
+import { ProgressBar } from '../components/ui/ProgressBar'
 import { useAsync } from '../hooks/useAsync'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
@@ -43,6 +45,14 @@ import { firstName } from '../lib/userProfile'
 import { categoryLabel, categoryMeta } from '../lib/categories'
 import { SOURCE_LABELS } from '../lib/sources'
 import { compactRwf, formatDate, formatRwf, formatSignedRwf } from '../lib/format'
+import {
+  CREDIT_MAX_SCORE,
+  CREDIT_MIN_SCORE,
+  FACTOR_KEYS,
+  FACTOR_META,
+  scoreBand,
+  scoreToPercent,
+} from '../lib/creditFactors'
 
 const SOURCE_ICONS: Record<AccountSource, typeof Landmark> = {
   plaid_bank: Landmark,
@@ -56,25 +66,6 @@ function greeting(): string {
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
 }
-
-const SCORE_BANDS = [
-  { label: 'Strong', min: 80, tone: 'text-palm' },
-  { label: 'Good', min: 60, tone: 'text-brand' },
-  { label: 'Fair', min: 40, tone: 'text-maize' },
-  { label: 'Building', min: 0, tone: 'text-brick' },
-]
-
-function scoreBand(score: number) {
-  return SCORE_BANDS.find((band) => score >= band.min) ?? SCORE_BANDS[SCORE_BANDS.length - 1]
-}
-
-const FACTOR_LABELS: Array<{ key: keyof CreditScoreResult['factors']; label: string }> = [
-  { key: 'cashFlowConsistency', label: 'Cash flow consistency' },
-  { key: 'transactionVolume', label: 'Transaction volume' },
-  { key: 'repaymentHistory', label: 'Repayment history' },
-  { key: 'businessStability', label: 'Business stability' },
-  { key: 'savingsBehavior', label: 'Savings behavior' },
-]
 
 type DashboardData = {
   accounts: Account[]
@@ -123,6 +114,7 @@ export function DashboardPage() {
 
   const credit = useAsync(() => api.creditScore.get(), [])
   const noScoreYet = credit.error?.code === 'credit_score_not_found'
+  const roleGated = credit.error?.code === 'forbidden' || credit.error?.status === 403
 
   const selectAccount = useCallback((accountId?: string) => {
     setActiveAccountId(accountId)
@@ -134,8 +126,23 @@ export function DashboardPage() {
       await api.creditScore.compute()
       await credit.reload()
       toast.success('Score computed', 'Your credit score was recalculated from your cash flow.')
-    } catch {
-      toast.error('Could not compute score', 'Check that the backend is reachable and try again.')
+    } catch (error) {
+      // Surface the real failure instead of a misleading generic message — a
+      // role gate, a backend rejection, and an unreachable backend need
+      // different guidance.
+      if (error instanceof ApiError && (error.code === 'forbidden' || error.status === 403)) {
+        toast.error(
+          'MSME feature',
+          'Credit scoring is available for MSME owner accounts. Switch your account type to compute a score.',
+        )
+      } else if (error instanceof ApiError) {
+        toast.error('Could not compute score', `The backend rejected the request (${error.code}).`)
+      } else {
+        toast.error(
+          'Could not compute score',
+          'The backend is unreachable. Start it with `npm run dev:api` and try again.',
+        )
+      }
     } finally {
       setComputingScore(false)
     }
@@ -191,7 +198,10 @@ export function DashboardPage() {
       result.push({
         tone: 'text-maize',
         title: 'Spending ratio',
-        body: `Spending is ${Math.round((Number(spending) / Number(income)) * 100)}% of income this period.`,
+        body: `Spending is ${Math.min(
+          100,
+          Math.round((Number(spending) / Number(income)) * 100),
+        )}% of income this period.`,
       })
     }
 
@@ -237,9 +247,9 @@ export function DashboardPage() {
     onClick={() => setConnectOpen(true)}
     className="group min-w-[164px] flex items-center justify-center gap-2"
   >
-    Connect account
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#eaecee] text-[#1e242a] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
-      <ArrowUpRight size={15} aria-hidden="true" />
+    Connect Bank
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#ffffff] text-[#1e242a] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
+      <ArrowUpRight size={15} aria-hidden="true" className='text-brand' />
     </span>
   </Button>
 </div>
@@ -269,13 +279,14 @@ export function DashboardPage() {
                 credit={credit.data}
                 loading={credit.loading}
                 noScoreYet={noScoreYet}
+                roleGated={roleGated}
                 accountsCount={data.accounts.length}
                 computing={computingScore}
                 onCompute={computeScore}
               />
               <TransactionsCard transactions={data.transactions} activeAccountId={activeAccountId} />
             </div>
-            <section className="card-shell animate-fade-up"><div className="card-inner flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-base font-semibold text-ink">More account detail is available when you need it.</p><p className="mt-1 text-sm text-ink/55">Review linked accounts, alerts, and coaching guidance in a focused full-screen view.</p></div><Button variant="secondary" onClick={() => setDetailsOpen(true)}>Open financial details</Button></div></section>
+            <section className="card-shell animate-fade-up"><div className="card-inner flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-base font-semibold text-ink">More account detail is available when you need it.</p><p className="mt-1 text-sm text-ink/55">Review linked accounts, alerts, and coaching guidance in a focused full-screen view.</p></div><Button  className='bg-brand text-white flex gap-1.5' onClick={() => setDetailsOpen(true)}>Open financial details <ExternalLink size={14} /></Button></div></section>
           </>
         ) : null}
       </div>
@@ -288,7 +299,43 @@ export function DashboardPage() {
           void reload()
         }}
       />
-      {data && <Modal open={detailsOpen} onClose={() => setDetailsOpen(false)} label="Financial details" fullPage><div className="mx-auto flex w-full max-w-6xl flex-col gap-6"><header className="flex items-center justify-between gap-4 border-b border-[#d7e6f3] pb-5"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Financial details</p><h2 className="mt-1 text-2xl font-semibold text-ink">Accounts, alerts & guidance</h2></div><Button variant="secondary" onClick={() => setDetailsOpen(false)}>Close</Button></header><div className="grid gap-6 xl:grid-cols-2"><AccountsCard accounts={data.accounts} balances={balances} activeAccountId={activeAccountId} onSelectAccount={selectAccount} onConnect={() => { setDetailsOpen(false); setConnectOpen(true) }} /><AlertsCard alerts={alerts} /></div><CoachCard title="Your AI coach" /></div></Modal>}
+{data && (
+  <Modal 
+    open={detailsOpen} 
+    onClose={() => setDetailsOpen(false)} 
+    label="Financial details"
+    wide
+  >
+    <div className="flex w-full flex-col max-h-[80vh] sm:max-h-[75vh]">
+      {/* Sticky Header Layer */}
+      <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-neutral-100 bg-white pb-5">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand">Financial details</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">Accounts, alerts & guidance</h2>
+        </div>
+        <Button variant="secondary" onClick={() => setDetailsOpen(false)} className="rounded-xl border border-neutral-200 font-semibold px-4 py-2">Close</Button>
+      </header>
+      
+      {/* Scrollable Viewport Container Grid */}
+      <div className="flex-1 overflow-y-auto pt-6 pr-1 gap-6 flex flex-col scrollbar-thin">
+        <div className="grid gap-6 md:grid-cols-2">
+          <AccountsCard 
+            accounts={data.accounts} 
+            balances={balances} 
+            activeAccountId={activeAccountId} 
+            onSelectAccount={selectAccount} 
+            onConnect={() => { setDetailsOpen(false); setConnectOpen(true) }} 
+          />
+          <AlertsCard alerts={alerts} />
+        </div>
+        
+        <CoachCard title="Your AI coach" />
+      </div>
+    </div>
+  </Modal>
+)}
+
+
     </>
   )
 }
@@ -301,12 +348,13 @@ function KpiGrid(props: { summary: Summary; credit: CreditScoreResult | null; lo
   const income = props.summary.byAccount.reduce((total, item) => total + BigInt(item.incomeMinor), 0n)
   const spending = props.summary.byAccount.reduce((total, item) => total + BigInt(item.spendingMinor), 0n)
   const balance = income - spending
-  const savingsRate = income > 0n ? Math.max(0, Math.round((Number(balance) / Number(income)) * 100)) : 0
+  const savingsRate =
+    income > 0n ? Math.min(100, Math.max(0, Math.round((Number(balance) / Number(income)) * 100))) : 0
   const cards = [
     { label: 'Net cash flow', value: formatRwf(balance), icon: CircleDollarSign, tone: 'text-brand', note: 'Across linked accounts' },
     { label: 'Income', value: formatRwf(income), icon: Download, tone: 'text-palm', note: 'This reporting period' },
     { label: 'Expenses', value: formatRwf(spending), icon: Banknote, tone: 'text-brick', note: 'This reporting period' },
-    { label: 'Savings rate', value: `${savingsRate}%`, icon: CircleGauge, tone: 'text-brand', note: props.loading ? 'Checking score…' : props.credit ? `Credit score ${props.credit.score}/100` : 'Build a score from activity' },
+    { label: 'Savings rate', value: `${savingsRate}%`, icon: CircleGauge, tone: 'text-brand', note: props.loading ? 'Checking score…' : props.credit ? `Credit score ${props.credit.score}/${CREDIT_MAX_SCORE}` : 'Build a score from activity' },
   ]
 
   return (
@@ -328,14 +376,14 @@ function ScoreCard(props: {
   credit: CreditScoreResult | null
   loading: boolean
   noScoreYet: boolean
+  /** True when the session role is not authorized for credit scoring (403). */
+  roleGated: boolean
   accountsCount: number
   computing: boolean
   onCompute: () => void
 }) {
   const band = props.credit ? scoreBand(props.credit.score) : null
-  const segments = props.credit
-    ? Array.from({ length: 10 }, (_, index) => index < Math.round(props.credit!.score / 10))
-    : []
+  const scorePercent = props.credit ? scoreToPercent(props.credit.score) : 0
 
   return (
     <section className="card-shell animate-fade-up" style={{ animationDelay: '60ms' }}>
@@ -352,7 +400,7 @@ function ScoreCard(props: {
               <>
                 <p className="mt-2 text-6xl font-semibold leading-none tracking-tight tabular">
                   {props.credit.score}
-                  <span className="text-xl text-ink/40">/100</span>
+                  <span className="text-xl text-ink/40">/{CREDIT_MAX_SCORE}</span>
                 </p>
                 <p className={`mt-2 text-sm font-semibold ${band!.tone}`}>{band!.label}</p>
               </>
@@ -365,7 +413,17 @@ function ScoreCard(props: {
           </span>
         </div>
 
-        {!props.loading && !props.credit && (
+        {!props.loading && !props.credit && props.roleGated && (
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed border-ink/20 bg-ledger p-4">
+            <p className="text-sm text-ink/60">
+              Credit scoring is an MSME feature — it reads your business cash flow across every
+              linked account. If you manage a business, switch your account type to MSME owner to
+              compute a score here.
+            </p>
+          </div>
+        )}
+
+        {!props.loading && !props.credit && !props.roleGated && (
           <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed border-ink/20 bg-ledger p-4">
             <p className="text-sm text-ink/60">
               {props.noScoreYet
@@ -380,25 +438,21 @@ function ScoreCard(props: {
 
         {!props.loading && props.credit && (
           <>
-            {/* Signature element: segmented score ruler */}
+            {/* Signature element: the [300, 850] score mapped onto a strict
+                0–100 layout percentage (scoreToPercent) — only the clamped
+                percentage reaches the progress track; the raw score stays in
+                the number column. */}
             <div>
-              <div className="flex gap-1" role="img" aria-label={`Credit score ${props.credit.score} out of 100`}>
-                {segments.map((filled, index) => (
-                  <div
-                    key={index}
-                    className={`h-2.5 flex-1 rounded-full transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-                      filled ? 'bg-palm' : 'bg-ink/10'
-                    }`}
-                  />
-                ))}
+              <div
+                role="img"
+                aria-label={`Credit score ${props.credit.score} out of ${CREDIT_MAX_SCORE}`}
+              >
+                <ProgressBar value={scorePercent} tone="palm" className="h-2" />
               </div>
-              <div className="mt-2 flex justify-between text-[11px] font-medium text-ink/40">
-                <span>0</span>
-                <span>Building</span>
-                <span>Fair</span>
-                <span>Good</span>
-                <span>Strong</span>
-                <span>100</span>
+              <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-ink/40">
+                <span>{CREDIT_MIN_SCORE}</span>
+                <span className="tabular text-brand">{scorePercent}% of range</span>
+                <span>{CREDIT_MAX_SCORE}</span>
               </div>
             </div>
 
@@ -407,20 +461,23 @@ function ScoreCard(props: {
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
                 What drives this score
               </p>
-              {FACTOR_LABELS.map((factor) => (
-                <div key={factor.key} className="grid grid-cols-[1fr_auto] items-center gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
-                      <div
-                        className="h-full rounded-full bg-brand transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]"
-                        style={{ width: `${props.credit!.factors[factor.key]}%` }}
-                      />
-                    </div>
+              {FACTOR_KEYS.map((key) => {
+                const meta = FACTOR_META[key]
+                return (
+                  <div key={key} className="grid grid-cols-[1fr_auto] items-center gap-3">
+                    {/* ProgressBar is the single progress utility — it clamps
+                        the normalized display value to [0, 100] and clips the
+                        fill inside overflow-hidden rails, so the raw metric
+                        (e.g. 154 transactions) can never stretch the bar past
+                        its container. The raw text stays in the label column. */}
+                    <ProgressBar value={meta.display(props.credit!.factors)} tone="brand" />
+                    <span className="text-xs text-ink/60 tabular">
+                      {meta.raw(props.credit!.factors)}
+                    </span>
+                    <span className="col-span-2 -mt-2 text-xs text-ink/50">{meta.label}</span>
                   </div>
-                  <span className="text-xs text-ink/60 tabular">{props.credit!.factors[factor.key]}</span>
-                  <span className="col-span-2 -mt-2 text-xs text-ink/50">{factor.label}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </>
         )}

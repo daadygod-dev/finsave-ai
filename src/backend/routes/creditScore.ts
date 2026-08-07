@@ -1,14 +1,15 @@
 import type { FastifyInstance } from 'fastify'
-import { z } from 'zod'
 import { requireRoles } from '../auth/consumer'
 import { computeCreditScore } from '../credit/scoring'
 import { prisma } from '../db/client'
+import { withTimeout } from '../util'
 
-const computeSchema = z.object({
-  business_age_months: z.coerce.number().int().min(0).max(600).optional(),
-  on_time_repayments: z.coerce.number().int().min(0).optional(),
-  total_repayments: z.coerce.number().int().min(0).optional(),
-})
+/**
+ * Hard cap on the scoring data-gathering phase. A hung or overloaded
+ * database should fail with a clear 504 rather than leave the request
+ * hanging until a proxy/Cloud Run timeout kills it.
+ */
+const SCORING_QUERY_TIMEOUT_MS = 15_000
 
 export async function registerCreditScoreRoutes(app: FastifyInstance) {
   app.post(
@@ -16,38 +17,34 @@ export async function registerCreditScoreRoutes(app: FastifyInstance) {
     { preHandler: requireRoles('msme_owner') },
     async (request, reply) => {
       const userId = request.user!.id
-      const body = computeSchema.parse(request.body)
 
       // Credit scoring reads across ALL of the business's linked accounts
-      // (bank + MoMo, or several of either) — AGENTS.md §3.
-      const transactions = await prisma.transaction.findMany({
-        where: { account: { userId } },
-        select: {
-          accountId: true,
-          amountMinor: true,
-          occurredAt: true,
-        },
-      })
-
-      const oldestTransaction = transactions.reduce<Date | null>(
-        (oldest, transaction) =>
-          !oldest || transaction.occurredAt < oldest ? transaction.occurredAt : oldest,
-        null,
+      // (bank + MoMo, or several of either) — AGENTS.md §3. The accounts and
+      // their transactions are gathered in parallel so the two queries never
+      // serialize on the database.
+      const [accounts, transactions] = await withTimeout(
+        Promise.all([
+          prisma.account.findMany({
+            where: { userId },
+            select: { id: true },
+          }),
+          prisma.transaction.findMany({
+            where: { account: { userId } },
+            select: {
+              accountId: true,
+              amountMinor: true,
+              occurredAt: true,
+            },
+          }),
+        ]),
+        SCORING_QUERY_TIMEOUT_MS,
       )
 
-      const businessAgeMonths =
-        body.business_age_months ??
-        (oldestTransaction
-          ? Math.max(
-              1,
-              Math.round(
-                (Date.now() - oldestTransaction.getTime()) / (1000 * 60 * 60 * 24 * 30),
-              ),
-            )
-          : 6)
-
-      const onTimeRepayments = body.on_time_repayments ?? 0
-      const totalRepayments = body.total_repayments ?? 0
+      // A score computed from zero linked accounts would be meaningless —
+      // fail with an explicit, actionable error instead of a fake number.
+      if (accounts.length === 0) {
+        throw Object.assign(new Error('no_linked_accounts'), { statusCode: 400 })
+      }
 
       const result = computeCreditScore({
         transactions: transactions.map((transaction) => ({
@@ -55,9 +52,6 @@ export async function registerCreditScoreRoutes(app: FastifyInstance) {
           amountMinor: transaction.amountMinor,
           occurredAt: transaction.occurredAt,
         })),
-        businessAgeMonths,
-        onTimeRepayments,
-        totalRepayments,
       })
 
       // Append a row per computation so score history is preserved; the GET
@@ -74,8 +68,6 @@ export async function registerCreditScoreRoutes(app: FastifyInstance) {
         score: result.score,
         factors: result.factors,
         computedAt: new Date(),
-        businessAgeMonths,
-        repayment: { onTimeRepayments, totalRepayments },
       })
     },
   )

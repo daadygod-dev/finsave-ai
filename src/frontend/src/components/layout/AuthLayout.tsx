@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from '../../../public/finsave-shield.png'
 
 /** Shared two-column authentication frame for all public account flows. */
 export function AuthLayout({ children }: { children: ReactNode }) {
@@ -9,7 +10,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-brand/45 bg-brand/10 shadow-[0_18px_40px_rgba(112,201,94,0.18)]">
               
-              <img src="/" alt="" />
+              <img src={Image} alt="FinSave AI Shield" />
             </div>
             <h1 className="mt-5 text-xl font-medium tracking-wide text-white">FinSave AI</h1>
           </div>

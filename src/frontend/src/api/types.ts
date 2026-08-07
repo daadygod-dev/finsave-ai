@@ -81,12 +81,19 @@ export type GoalFeasibility = {
   suggestedMonths: number | null
 }
 
+/** Score is a FICO-style integer in [300, 850]. */
 export type CreditScoreFactors = {
+  /** 0–100: share of months with positive net cash flow, surplus-adjusted. */
   cashFlowConsistency: number
+  /** Total ledger transaction count across all linked accounts. */
   transactionVolume: number
-  repaymentHistory: number
-  businessStability: number
-  savingsBehavior: number
+  /** totalExpense / totalIncome, capped at 1 (100%) — never above the ceiling. */
+  expenseRatio: number
+  /** Raw uncapped totalExpense / totalIncome (e.g. 1.28 = 128% of income);
+   * `null` when income is zero, `0` when there is no activity. For lender
+   * explainability — consumer UI keeps percentages capped at 100%. Treat
+   * `null` as the worst case (spending with no income), never as "no data". */
+  expenseOverrunRatio: number | null
 }
 
 export type CreditScoreResult = {
@@ -100,13 +107,7 @@ export type CreditScoreHistoryEntry = {
   computedAt: string
 }
 
-export type CreditScoreComputed = CreditScoreResult & {
-  businessAgeMonths: number
-  repayment: {
-    onTimeRepayments: number
-    totalRepayments: number
-  }
-}
+export type CreditScoreComputed = CreditScoreResult
 
 export type InsuranceProductType = 'crop' | 'business' | 'motorcycle' | 'health' | 'life'
 

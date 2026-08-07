@@ -32,12 +32,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   uncategorized: 'uncategorized spending',
 }
 
-const FACTOR_LABELS: Record<string, string> = {
-  cashFlowConsistency: 'Cash flow consistency',
-  transactionVolume: 'Transaction volume',
-  repaymentHistory: 'Repayment history',
-  businessStability: 'Business stability',
-  savingsBehavior: 'Savings behavior',
+function scoreBandLabel(score: number): string {
+  if (score >= 720) return 'Strong'
+  if (score >= 640) return 'Good'
+  if (score >= 540) return 'Fair'
+  return 'Building'
 }
 
 function formatRwf(minor: bigint): string {
@@ -115,7 +114,10 @@ export async function generateCoachInsights(userId: string): Promise<CoachInsigh
       type: 'warning',
       tone: 'warning',
       title: 'Spending is running high',
-      body: `You spent ${Math.round((Number(spending30) * 100) / Number(income30))}% of your income in the last 30 days. Keeping it under 80% protects your cash flow and credit standing.`,
+      body: `You spent ${Math.min(
+        100,
+        Math.round((Number(spending30) * 100) / Number(income30)),
+      )}% of your income in the last 30 days. Keeping it under 80% protects your cash flow and credit standing.`,
     })
   }
 
@@ -181,18 +183,32 @@ export async function generateCoachInsights(userId: string): Promise<CoachInsigh
   }
 
   if (latestScore) {
-    const factors = latestScore.factorsJson as Record<string, number>
-    const weakest = Object.entries(factors).sort((a, b) => a[1] - b[1])[0]
-
-    if (weakest) {
-      insights.push({
-        id: 'credit-focus',
-        type: 'credit',
-        tone: 'info',
-        title: `Score ${latestScore.score} — grow ${FACTOR_LABELS[weakest[0]] ?? weakest[0]}`,
-        body: `${FACTOR_LABELS[weakest[0]] ?? weakest[0]} is your lowest factor (${weakest[1]}/100). Consistent income and on-time repayments lift it fastest.`,
-      })
+    const factors = (latestScore.factorsJson ?? {}) as {
+      cashFlowConsistency?: number
+      expenseRatio?: number
     }
+    const consistency = factors.cashFlowConsistency ?? 0
+    const expenseRatio = factors.expenseRatio ?? 0
+
+    let lever: string
+    if (consistency < 50) {
+      lever =
+        'Irregular cash flow is holding the score back — smoothing monthly income lifts it fastest.'
+    } else if (expenseRatio > 0.7) {
+      lever = `Expenses are ${Math.min(100, Math.round(
+        expenseRatio * 100,
+      ))}% of income — keeping spending under 70% of income is the fastest lever.`
+    } else {
+      lever = 'Healthy cash flow and a strong surplus ratio — keep the current behavior steady.'
+    }
+
+    insights.push({
+      id: 'credit-focus',
+      type: 'credit',
+      tone: 'info',
+      title: `Score ${latestScore.score} — ${scoreBandLabel(latestScore.score)}`,
+      body: lever,
+    })
   }
 
   const groqConfig = getGroqConfig()

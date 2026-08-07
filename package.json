@@ -9,13 +9,14 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "role:promote": "tsx scripts/promote-user-role.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/swagger": "^9.4.0",
-    "@fastify/swagger-ui": "^5.2.0",
+    "@fastify/swagger-ui": "^6.1.1",
     "@prisma/client": "^6.3.1",
     "@radix-ui/react-popover": "^1.1.23",
     "@radix-ui/react-select": "^2.3.7",
@@ -29,7 +30,7 @@
     "react": "^19.0.0",
     "react-day-picker": "^10.0.1",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.18.2",
+    "react-router-dom": "^7.11.0",
     "recharts": "^2.15.0",
     "vaul": "^1.1.2",
     "zod": "^3.24.1"
@@ -46,7 +47,7 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.6",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.10"
   },
   "description": "An AI-assisted financial coaching platform: spending tracking, savings goal\r management, MSME credit scoring, and insurance matching — built as a\r web-first MVP.",
   "main": "postcss.config.js",

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Calculator, CheckCircle2, ShieldCheck, TrendingUp } from 'lucide-react'
 import {
   CartesianGrid,
@@ -10,55 +10,25 @@ import {
   YAxis,
 } from 'recharts'
 import { api } from '../api/endpoints'
+import { ApiError } from '../api/client'
 import type { CreditScoreHistoryEntry, CreditScoreResult } from '../api/types'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
-import { Field } from '../components/ui/Field'
-import { Input } from '../components/ui/Input'
 import { PageHeader } from '../components/ui/PageHeader'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Spinner } from '../components/ui/Spinner'
 import { useAsync } from '../hooks/useAsync'
 import { useToast } from '../context/ToastContext'
 import { formatDate } from '../lib/format'
-
-const SCORE_BANDS = [
-  { label: 'Strong', min: 80, tone: 'text-palm' },
-  { label: 'Good', min: 60, tone: 'text-brand' },
-  { label: 'Fair', min: 40, tone: 'text-maize' },
-  { label: 'Building', min: 0, tone: 'text-brick' },
-]
-
-function scoreBand(score: number) {
-  return SCORE_BANDS.find((band) => score >= band.min) ?? SCORE_BANDS[SCORE_BANDS.length - 1]
-}
-
-const FACTOR_LABELS: Array<{ key: keyof CreditScoreResult['factors']; label: string }> = [
-  { key: 'cashFlowConsistency', label: 'Cash flow consistency' },
-  { key: 'transactionVolume', label: 'Transaction volume' },
-  { key: 'repaymentHistory', label: 'Repayment history' },
-  { key: 'businessStability', label: 'Business stability' },
-  { key: 'savingsBehavior', label: 'Savings behavior' },
-]
-
-/** Plain-language explanation of why a strong factor helps. */
-const FACTOR_POSITIVE: Record<keyof CreditScoreResult['factors'], string> = {
-  cashFlowConsistency: 'Stable income — consistent cash flow strengthens repayment capacity.',
-  transactionVolume: 'Active transaction volume — regular activity shows a live business.',
-  repaymentHistory: 'Payment consistency — on-time repayments build lender trust.',
-  businessStability: 'Business stability — a longer track record lowers risk.',
-  savingsBehavior: 'Saving behavior — a cash buffer protects against shocks.',
-}
-
-/** Plain-language guidance for a weak factor. */
-const FACTOR_IMPROVE: Record<keyof CreditScoreResult['factors'], string> = {
-  cashFlowConsistency: 'Irregular cash flow — smoother income months lift this fastest.',
-  transactionVolume: 'Low transaction activity — recording more business transactions helps.',
-  repaymentHistory: 'Limited repayment history — more on-time repayments build this.',
-  businessStability: 'Young business profile — time and consistent activity raise stability.',
-  savingsBehavior: 'Weak savings buffer — regular monthly savings improve this factor.',
-}
+import {
+  CREDIT_MAX_SCORE,
+  CREDIT_MIN_SCORE,
+  FACTOR_KEYS,
+  FACTOR_META,
+  scoreBand,
+  scoreToPercent,
+} from '../lib/creditFactors'
 
 export function CreditScorePage() {
   const toast = useToast()
@@ -72,7 +42,7 @@ export function CreditScorePage() {
 
   const handleComputed = useCallback(
     (result: CreditScoreResult) => {
-      toast.success('Score computed', `Your MSME credit score is ${result.score}/100.`)
+      toast.success('Score computed', `Your MSME credit score is ${result.score}/${CREDIT_MAX_SCORE}.`)
       void reload()
       void history.reload()
     },
@@ -137,7 +107,9 @@ function spendingRatio(summary: { byAccount: Array<{ incomeMinor: string; spendi
   }
 
   if (income <= 0n) return null
-  return Math.round((Number(spending) * 100) / Number(income))
+  // Cap at 100% — spending can outrun income, but the displayed ratio never
+  // exceeds the ceiling (and the derived focus value stays non-negative).
+  return Math.min(100, Math.round((Number(spending) * 100) / Number(income)))
 }
 
 function ScoreResultCard({
@@ -152,26 +124,34 @@ function ScoreResultCard({
   onRecompute: (result: CreditScoreResult) => void
 }) {
   const band = scoreBand(credit.score)
-  const segments = Array.from({ length: 10 }, (_, index) => index < Math.round(credit.score / 10))
+  const scorePercent = scoreToPercent(credit.score)
 
   const strengths = useMemo(
     () =>
-      FACTOR_LABELS.filter((factor) => credit.factors[factor.key] >= 65).map((factor) => ({
-        label: factor.label,
-        value: credit.factors[factor.key],
-        body: FACTOR_POSITIVE[factor.key],
-      })),
+      FACTOR_KEYS.map((key) => ({
+        meta: FACTOR_META[key],
+        value: FACTOR_META[key].display(credit.factors),
+      }))
+        .filter((factor) => factor.value >= 65)
+        .map((factor) => ({
+          label: factor.meta.label,
+          value: factor.value,
+          body: factor.meta.positive,
+        })),
     [credit],
   )
 
   const focus = useMemo(() => {
-    const areas = FACTOR_LABELS.filter((factor) => credit.factors[factor.key] < 50).map(
-      (factor) => ({
-        label: factor.label,
-        value: credit.factors[factor.key],
-        body: FACTOR_IMPROVE[factor.key],
-      }),
-    )
+    const areas = FACTOR_KEYS.map((key) => ({
+      meta: FACTOR_META[key],
+      value: FACTOR_META[key].display(credit.factors),
+    }))
+      .filter((factor) => factor.value < 50)
+      .map((factor) => ({
+        label: factor.meta.label,
+        value: factor.value,
+        body: factor.meta.improve,
+      }))
 
     if (ratio !== null && ratio >= 80) {
       areas.unshift({
@@ -196,11 +176,10 @@ function ScoreResultCard({
             <p className="flex items-center gap-2 text-sm font-medium text-ink/60">
               <ShieldCheck size={18} aria-hidden="true" className="text-palm" />
               MSME credit score
-            </p>
-            <p className="mt-2 text-7xl font-semibold leading-none tracking-tight tabular">
-              {credit.score}
-              <span className="text-2xl text-ink/40">/100</span>
-            </p>
+            </p>              <p className="mt-2 text-7xl font-semibold leading-none tracking-tight tabular">
+                {credit.score}
+                <span className="text-2xl text-ink/40">/{CREDIT_MAX_SCORE}</span>
+              </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className={`text-sm font-semibold ${band.tone}`}>{band.label}</span>
               {delta !== null && delta !== 0 && (
@@ -213,23 +192,20 @@ function ScoreResultCard({
           </div>
 
           <div className="w-full sm:max-w-[18rem]">
-            <div className="flex gap-1" role="img" aria-label={`Credit score ${credit.score} out of 100`}>
-              {segments.map((filled, index) => (
-                <div
-                  key={index}
-                  className={`h-2.5 flex-1 rounded-full transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-                    filled ? 'bg-palm' : 'bg-ink/10'
-                  }`}
-                />
-              ))}
+            <div
+              role="img"
+              aria-label={`Credit score ${credit.score} out of ${CREDIT_MAX_SCORE}`}
+            >
+              {/* The [300, 850] integer score is mapped onto a strict 0–100
+                  layout percentage (scoreToPercent) — only that clamped
+                  percentage reaches the progress track. The raw score stays
+                  in the number column. */}
+              <ProgressBar value={scorePercent} tone="palm" className="h-2" />
             </div>
-            <div className="mt-2 flex justify-between text-[11px] font-medium text-ink/40">
-              <span>0</span>
-              <span>Building</span>
-              <span>Fair</span>
-              <span>Good</span>
-              <span>Strong</span>
-              <span>100</span>
+            <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-ink/40">
+              <span>{CREDIT_MIN_SCORE}</span>
+              <span className="tabular text-brand">{scorePercent}% of range</span>
+              <span>{CREDIT_MAX_SCORE}</span>
             </div>
           </div>
         </div>
@@ -239,15 +215,18 @@ function ScoreResultCard({
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
               What drives this score
             </p>
-            {FACTOR_LABELS.map((factor) => (
-              <div key={factor.key} className="flex items-center gap-3">
-                <span className="w-40 shrink-0 text-xs text-ink/55">{factor.label}</span>
-                <ProgressBar value={credit.factors[factor.key]} tone="brand" className="flex-1" />
-                <span className="w-8 shrink-0 text-right text-xs font-semibold text-ink/70 tabular">
-                  {credit.factors[factor.key]}
-                </span>
-              </div>
-            ))}
+            {FACTOR_KEYS.map((key) => {
+              const meta = FACTOR_META[key]
+              return (
+                <div key={key} className="flex items-center gap-3">
+                  <span className="w-44 shrink-0 text-xs text-ink/55">{meta.label}</span>
+                  <ProgressBar value={meta.display(credit.factors)} tone="brand" className="flex-1" />
+                  <span className="w-32 shrink-0 text-right text-xs font-semibold text-ink/70 tabular">
+                    {meta.raw(credit.factors)}
+                  </span>
+                </div>
+              )
+            })}
             <Button
               variant="secondary"
               size="sm"
@@ -365,13 +344,13 @@ function HistoryCard({ history }: { history: CreditScoreHistoryEntry[] }) {
                   tick={{ fontSize: 11, fill: 'rgba(23,33,27,0.55)' }}
                 />
                 <YAxis
-                  domain={[0, 100]}
+                  domain={[CREDIT_MIN_SCORE, CREDIT_MAX_SCORE]}
                   tickLine={false}
                   axisLine={false}
                   tick={{ fontSize: 11, fill: 'rgba(23,33,27,0.55)' }}
                 />
                 <Tooltip
-                  formatter={(value) => [`${value}/100`, 'Score']}
+                  formatter={(value) => [`${value}/${CREDIT_MAX_SCORE}`, 'Score']}
                   contentStyle={{
                     borderRadius: 12,
                     border: '1px solid rgba(23,33,27,0.1)',
@@ -396,26 +375,30 @@ function HistoryCard({ history }: { history: CreditScoreHistoryEntry[] }) {
 }
 
 function ComputeCard({ onComputed }: { onComputed: (result: CreditScoreResult) => void }) {
-  const [businessAge, setBusinessAge] = useState('')
-  const [onTime, setOnTime] = useState('')
-  const [total, setTotal] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault()
+  const compute = async () => {
     setError(null)
     setSubmitting(true)
 
     try {
-      const result = await api.creditScore.compute({
-        ...(businessAge.trim() ? { business_age_months: Number(businessAge) } : {}),
-        ...(onTime.trim() ? { on_time_repayments: Number(onTime) } : {}),
-        ...(total.trim() ? { total_repayments: Number(total) } : {}),
-      })
+      const result = await api.creditScore.compute()
       onComputed(result)
-    } catch {
-      setError('Could not compute the score. Check that the backend is running and accounts are linked.')
+    } catch (error) {
+      // Distinguish the failure modes so the message is actionable instead of
+      // a generic catch-all.
+      if (error instanceof ApiError && (error.code === 'forbidden' || error.status === 403)) {
+        setError(
+          'Credit scoring is available for MSME owner accounts only — switch your account type to compute a score.',
+        )
+      } else if (error instanceof ApiError && error.code === 'no_linked_accounts') {
+        setError('Link at least one account first — the score is derived from your transaction history.')
+      } else if (error instanceof ApiError) {
+        setError(`The backend rejected the request (${error.code}). Try again in a moment.`)
+      } else {
+        setError('The backend is unreachable. Check that it is running (`npm run dev:api`) and try again.')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -429,51 +412,19 @@ function ComputeCard({ onComputed }: { onComputed: (result: CreditScoreResult) =
           <h2 className="text-lg font-semibold">Compute your score</h2>
         </div>
         <p className="mb-6 max-w-xl text-sm leading-relaxed text-ink/60">
-          No score exists yet. Your score is derived from your linked transaction history — the
-          fields below are optional refinements for your business profile.
+          No score exists yet. Your score is derived from your linked transaction history across
+          every account — bank and mobile money. Recompute whenever new transactions arrive.
         </p>
 
-        <form onSubmit={submit} className="grid max-w-2xl gap-4 sm:grid-cols-3">
-          <Field label="Business age (months)" htmlFor="score-age" hint="Optional">
-            <Input
-              id="score-age"
-              inputMode="numeric"
-              value={businessAge}
-              onChange={(event) => setBusinessAge(event.target.value.replace(/[^\d]/g, ''))}
-              placeholder="e.g. 24"
-            />
-          </Field>
-          <Field label="On-time repayments" htmlFor="score-on-time" hint="Optional">
-            <Input
-              id="score-on-time"
-              inputMode="numeric"
-              value={onTime}
-              onChange={(event) => setOnTime(event.target.value.replace(/[^\d]/g, ''))}
-              placeholder="e.g. 6"
-            />
-          </Field>
-          <Field label="Total repayments" htmlFor="score-total" hint="Optional">
-            <Input
-              id="score-total"
-              inputMode="numeric"
-              value={total}
-              onChange={(event) => setTotal(event.target.value.replace(/[^\d]/g, ''))}
-              placeholder="e.g. 8"
-            />
-          </Field>
+        {error && (
+          <p className="mb-4 rounded-lg border border-brick/30 bg-brick/5 px-3 py-2 text-sm text-brick">
+            {error}
+          </p>
+        )}
 
-          {error && (
-            <p className="rounded-lg border border-brick/30 bg-brick/5 px-3 py-2 text-sm text-brick sm:col-span-3">
-              {error}
-            </p>
-          )}
-
-          <div className="sm:col-span-3">
-            <Button type="submit" loading={submitting}>
-              {submitting ? 'Computing…' : 'Compute score'}
-            </Button>
-          </div>
-        </form>
+        <Button onClick={compute} loading={submitting}>
+          {submitting ? 'Computing…' : 'Compute score'}
+        </Button>
       </div>
     </div>
   )

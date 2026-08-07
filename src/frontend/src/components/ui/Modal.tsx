@@ -46,7 +46,7 @@ export function Modal({ open, onClose, label, wide = false, fullPage = false, ch
     >
       <div
         className={cx(
-          'card-shell w-full transform transition-all duration-300 overflow-hidden', 
+          'card-shell w-full transform transition-all duration-300 overflow-auto', 
           fullPage 
             ? 'h-[100dvh] max-w-none overflow-y-auto rounded-none' 
             : 'max-w-none rounded-t-[24px] bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.04)] animate-slide-up sm:rounded-[24px] sm:shadow-xl sm:animate-fade-up',

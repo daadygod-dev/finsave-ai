@@ -155,103 +155,94 @@ export function InsurancePage() {
         )}
       </div>
 
-      <Modal open={profileOpen} onClose={() => setProfileOpen(false)} label="Insurance profile matching" fullPage>
-        <form onSubmit={submit} className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-          <header className="flex items-start justify-between gap-4 border-b border-[#d7e6f3] pb-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Insurance</p>
-              <h2 className="mt-1 text-2xl font-semibold text-ink">Match your profile</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/60">
-                Enter the details that matter for insurance eligibility and pricing. The results update after you submit.
-              </p>
-            </div>
-            <Button variant="secondary" type="button" onClick={() => setProfileOpen(false)}>
-              Close
-            </Button>
-          </header>
+     <Modal open={profileOpen} onClose={() => setProfileOpen(false)} label="Insurance profile matching">
+  <form onSubmit={submit} className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+    <header className="flex items-start justify-between gap-4 border-b border-neutral-100 pb-5">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Insurance</p>
+        <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">Match your profile</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-500">
+          Enter the details that matter for insurance eligibility and pricing. The results update after you submit.
+        </p>
+      </div>
+      <Button variant="secondary" type="button" onClick={() => setProfileOpen(false)} className="rounded-xl border border-neutral-200 font-semibold px-4 py-2">
+        Close
+      </Button>
+    </header>
 
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="card-shell">
-              <div className="card-inner flex flex-col gap-4 p-6">
-                <h3 className="flex items-center gap-2 text-lg font-semibold">
-                  <Umbrella size={20} aria-hidden="true" className="text-palm" />
-                  Your profile
-                </h3>
+    <div className="flex flex-col flex-1 gap-6">
+      <section className="flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-neutral-50/50 p-6">
+        <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-400">
+          <Umbrella size={16} aria-hidden="true" className="text-brand" />
+          Profile details
+        </h3>
 
-                <Field label="Sector" htmlFor="ins-sector" hint="e.g. farming, retail, transport">
-                  <Input
-                    id="ins-sector"
-                    value={profile.sector}
-                    onChange={(event) => setProfile((p) => ({ ...p, sector: event.target.value }))}
-                    placeholder="farming"
-                  />
-                </Field>
-                <Field label="Occupation" htmlFor="ins-occupation">
-                  <Input
-                    id="ins-occupation"
-                    value={profile.occupation}
-                    onChange={(event) => setProfile((p) => ({ ...p, occupation: event.target.value }))}
-                    placeholder="e.g. moto rider"
-                  />
-                </Field>
-                <Field label="Business type" htmlFor="ins-business-type">
-                  <Input
-                    id="ins-business-type"
-                    value={profile.businessType}
-                    onChange={(event) => setProfile((p) => ({ ...p, businessType: event.target.value }))}
-                    placeholder="e.g. shop, boutique"
-                  />
-                </Field>
-                <Field label="Dependents" htmlFor="ins-dependents">
-                  <Input
-                    id="ins-dependents"
-                    inputMode="numeric"
-                    value={profile.dependents}
-                    onChange={(event) =>
-                      setProfile((p) => ({ ...p, dependents: event.target.value.replace(/[^\d]/g, '') }))
-                    }
-                    placeholder="0"
-                  />
-                </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Sector" htmlFor="ins-sector" hint="e.g. farming, retail, transport">
+            <Input
+              id="ins-sector"
+              value={profile.sector}
+              onChange={(event) => setProfile((p) => ({ ...p, sector: event.target.value }))}
+              placeholder="farming"
+              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-neutral-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+          </Field>
+          <Field label="Occupation" htmlFor="ins-occupation">
+            <Input
+              id="ins-occupation"
+              value={profile.occupation}
+              onChange={(event) => setProfile((p) => ({ ...p, occupation: event.target.value }))}
+              placeholder="e.g. moto rider"
+              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-neutral-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+          </Field>
+          <Field label="Business type" htmlFor="ins-business-type">
+            <Input
+              id="ins-business-type"
+              value={profile.businessType}
+              onChange={(event) => setProfile((p) => ({ ...p, businessType: event.target.value }))}
+              placeholder="e.g. shop, boutique"
+              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-neutral-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+          </Field>
+          <Field label="Dependents" htmlFor="ins-dependents">
+            <Input
+              id="ins-dependents"
+              inputMode="numeric"
+              value={profile.dependents}
+              onChange={(event) =>
+                setProfile((p) => ({ ...p, dependents: event.target.value.replace(/[^\d]/g, '') }))
+              }
+              placeholder="0"
+              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-neutral-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+          </Field>
+        </div>
 
-                <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-ink/10 bg-ledger px-3.5 py-2.5">
-                  <input
-                    type="checkbox"
-                    checked={profile.hasMotorcycle}
-                    onChange={(event) => setProfile((p) => ({ ...p, hasMotorcycle: event.target.checked }))}
-                    className="h-4 w-4 rounded border-ink/30 accent-[#1f6f4a]"
-                  />
-                  <span className="text-sm font-medium text-ink/70">I own / ride a motorcycle</span>
-                </label>
+        <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 bg-white px-3.5 py-3 transition-colors hover:bg-neutral-50">
+          <input
+            type="checkbox"
+            checked={profile.hasMotorcycle}
+            onChange={(event) => setProfile((p) => ({ ...p, hasMotorcycle: event.target.checked }))}
+            className="h-4 w-4 rounded border-neutral-300 text-brand focus:ring-brand"
+          />
+          <span className="text-sm font-semibold text-neutral-700">I own / ride a motorcycle</span>
+        </label>
+      </section>
 
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <Button variant="ghost" size="sm" type="button" onClick={() => setProfile(EMPTY_PROFILE)}>
-                    <RotateCcw size={14} aria-hidden="true" />
-                    Reset
-                  </Button>
-                  <Button type="submit" size="md" loading={loading}>
-                    Find matches
-                  </Button>
-                </div>
-              </div>
-            </div>
+      <div className="flex items-center justify-between gap-2 bg-neutral-50/50 p-4 -mx-6 -mb-6 border-t border-neutral-100">
+        <Button variant="ghost" size="sm" type="button" onClick={() => setProfile(EMPTY_PROFILE)} className="rounded-xl font-semibold text-neutral-500 hover:text-neutral-800">
+          <RotateCcw size={14} aria-hidden="true" />
+          Reset
+        </Button>
+        <Button type="submit" size="md" loading={loading} className="bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl px-5 shadow-sm">
+          Find matches
+        </Button>
+      </div>
+    </div>
+  </form>
+</Modal>
 
-            <div className="card-shell">
-              <div className="card-inner flex h-full flex-col gap-4 p-6">
-                <h3 className="text-lg font-semibold text-ink">What we use</h3>
-                <ul className="space-y-3 text-sm leading-relaxed text-ink/60">
-                  <li>Sector and occupation to narrow the product set.</li>
-                  <li>Business type to bias toward the right coverage class.</li>
-                  <li>Dependents and motorcycle use to influence suitability.</li>
-                </ul>
-                <div className="rounded-2xl border border-ink/10 bg-ledger p-4 text-sm text-ink/60">
-                  The modal keeps the form focused while the results page stays available behind it.
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-      </Modal>
     </div>
   )
 }

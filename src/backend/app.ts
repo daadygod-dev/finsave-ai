@@ -20,12 +20,37 @@ type HttpError = Error & {
   statusCode?: number
 }
 
+/**
+ * Explicit CORS allowlist — deny by default, authorize known origins only
+ * (AGENTS.md §5 posture). Local development footprints are always allowed;
+ * the deployed Vercel frontend origin is supplied via CORS_ORIGINS
+ * (comma-separated) so production is authorized explicitly instead of
+ * reflecting any origin. Requests without an Origin header (curl,
+ * server-to-server) are unaffected by CORS.
+ */
+const LOCAL_CORS_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:4173',
+]
+
+function resolveCorsOrigins(): string[] {
+  const configured = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+
+  return [...new Set([...LOCAL_CORS_ORIGINS, ...configured])]
+}
+
 export async function buildApp() {
   const app = Fastify({ logger: true })
 
   await app.register(cors, {
-    origin: true,
+    origin: resolveCorsOrigins(),
     credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   })
 
   await app.register(rateLimit, {
