@@ -14,6 +14,7 @@ import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
 import { PrivacyPage } from '../pages/PrivacyPage'
+import { TermsPage } from '../pages/TermsPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { SignUpPage } from '../pages/SignUpPage'
 import { TransactionsPage } from '../pages/TransactionsPage'
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
   { path: '/auth/confirm', element: <ConfirmEmailPage /> },
   // Legal pages are public: reachable whether signed in or signed out.
   { path: '/privacy', element: <PrivacyPage /> },
+  { path: '/terms', element: <TermsPage /> },
   {
     path: '/',
     element: <ProtectedRoute />,

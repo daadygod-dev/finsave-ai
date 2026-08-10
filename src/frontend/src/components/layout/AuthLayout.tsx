@@ -24,7 +24,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
               </Link>
             </p>
             <p className="text-sm leading-6t">
-              <Link to="/privacy" className="text-neutral-500 underline">
+              <Link to="/terms" className="text-neutral-500 underline">
 
               Terms of service
               </Link>
