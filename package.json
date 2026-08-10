@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "prisma generate  && vite build",
     "role:promote": "tsx scripts/promote-user-role.ts"
   },
   "dependencies": {

@@ -22,17 +22,19 @@ type HttpError = Error & {
 
 /**
  * Explicit CORS allowlist — deny by default, authorize known origins only
- * (AGENTS.md §5 posture). Local development footprints are always allowed;
- * the deployed Vercel frontend origin is supplied via CORS_ORIGINS
+ * (AGENTS.md §5 posture). Local development footprints and the production
+ * frontend (https://finsave.aitoolshq.space) are always allowed; any
+ * additional deployed origins are supplied via CORS_ORIGINS
  * (comma-separated) so production is authorized explicitly instead of
  * reflecting any origin. Requests without an Origin header (curl,
  * server-to-server) are unaffected by CORS.
  */
-const LOCAL_CORS_ORIGINS = [
+const DEFAULT_CORS_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:4173',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:4173',
+  'https://finsave.aitoolshq.space',
 ]
 
 function resolveCorsOrigins(): string[] {
@@ -41,7 +43,7 @@ function resolveCorsOrigins(): string[] {
     .map((origin) => origin.trim())
     .filter(Boolean)
 
-  return [...new Set([...LOCAL_CORS_ORIGINS, ...configured])]
+  return [...new Set([...DEFAULT_CORS_ORIGINS, ...configured])]
 }
 
 export async function buildApp() {

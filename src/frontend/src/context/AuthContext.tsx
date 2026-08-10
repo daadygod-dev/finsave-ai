@@ -8,7 +8,7 @@ import {
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import type { UserRole } from '../api/types'
-import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { isSupabaseConfigured, SITE_URL, supabase } from '../lib/supabase'
 import { setAccessToken } from '../lib/session'
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
@@ -140,7 +140,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // backend reads it from the verified token when provisioning the
         // Prisma User row (never from an unauthenticated body value).
         data: { role, onboarding_complete: false },
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        // Canonical site URL (defaults to https://finsave.aitoolshq.space) so
+        // the confirmation link in the email is never a localhost/dev origin.
+        emailRedirectTo: `${SITE_URL}/auth/confirm`,
       },
     })
 
@@ -167,7 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = useCallback(async (email: string) => {
     if (!supabase) throw new Error('Supabase is not configured.')
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      // Same canonical URL as the confirmation link — reset emails must never
+      // point at a localhost/dev origin.
+      redirectTo: `${SITE_URL}/reset-password`,
     })
     if (error) throw error
   }, [])

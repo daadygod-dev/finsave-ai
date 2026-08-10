@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/src/backend/server.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/src/frontend/index.html"
+    }
+  ]
+}
