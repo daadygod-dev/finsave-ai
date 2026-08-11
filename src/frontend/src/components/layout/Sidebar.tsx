@@ -111,7 +111,7 @@ export function Sidebar({ className, collapsed = false, onToggleCollapse }: Side
           )}
         >
           <p className="truncate text-lg font-semibold tracking-[-0.03em] text-white">FinSave AI</p>
-          <p className="text-[11px] text-slate-400">MSME money coach</p>
+          
         </div>
       </div>
 

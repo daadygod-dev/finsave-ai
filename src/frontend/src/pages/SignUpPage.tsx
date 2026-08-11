@@ -167,7 +167,7 @@ export function SignUpPage() {
               />
             </Field>
 
-            <div>
+            {/* <div>
               <p className="mb-1.5 text-sm font-medium text-ink/70">Account type</p>
               <div className="grid grid-cols-2 gap-2">
                 {(
@@ -192,7 +192,7 @@ export function SignUpPage() {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {formError && (
               <p className="rounded-lg border border-brick/30 bg-brick/5 px-3 py-2 text-sm text-brick">

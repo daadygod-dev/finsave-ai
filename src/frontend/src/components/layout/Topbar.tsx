@@ -152,7 +152,7 @@ export function Topbar({ onMenu }: TopbarProps) {
                 setProfileOpen((value) => !value)
               }}
               className={cx(
-                'flex items-center rounded-full py-1 pl-1 pr-1.5 outline-2 outline-ink transition-colors duration-200 hover:bg-ledger hover:border-ink focus-visible:ring-2 focus-visible:ring-brand sm:gap-2 sm:pl-1.5 sm:pr-2',
+                'flex items-center border border-brand text-sm rounded-full py-1 pl-1 pr-1.5 outline-2 outline-ink transition-colors duration-200 hover:bg-ledger hover:border-ink focus-visible:ring-2 focus-visible:ring-brand sm:gap-2 sm:pl-1.5 sm:pr-2',
                 profileOpen && 'bg-ink/5',
               )}
               aria-haspopup="menu"
@@ -166,7 +166,7 @@ export function Topbar({ onMenu }: TopbarProps) {
                 <span className="block truncate text-xs font-semibold text-ink">
                   {displayName(user)}
                 </span>
-                <span className="block text-[11px] text-ink/50">MSME Owner <span className="sr-only">Signed in</span></span>
+              
               </span>
               <ChevronDown
                 size={17}
